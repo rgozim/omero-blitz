@@ -86,7 +86,7 @@ public class ServerTemplateImportTarget extends TemplateImportTarget {
                 new ParametersI().add("name", rstring(name)));
             if (screens.size() == 0 || getDiscriminator().startsWith("@")) {
                 screen = new ScreenI();
-                screen.setName(omero.rtypes.rstring(name));
+                screen.setName(rstring(name));
                 screen = (Screen) update.saveAndReturnObject(screen);
             } else {
                 if (getDiscriminator().startsWith("%") && screens.size() > 1) {
@@ -105,7 +105,7 @@ public class ServerTemplateImportTarget extends TemplateImportTarget {
                 new ParametersI().add("name", rstring(name)));
             if (datasets.size() == 0 || getDiscriminator().startsWith("@")) {
                 dataset = new DatasetI();
-                dataset.setName(omero.rtypes.rstring(name));
+                dataset.setName(rstring(name));
                 dataset = (Dataset) update.saveAndReturnObject(dataset);
             } else {
                 if (getDiscriminator().startsWith("%") && datasets.size() > 1) {

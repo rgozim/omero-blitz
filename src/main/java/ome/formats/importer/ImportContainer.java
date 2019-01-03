@@ -366,8 +366,8 @@ public class ImportContainer
                 !transfer.getClass().equals(UploadFileTransfer.class)) {
             String type = transfer.getClass().getName();
             CommentAnnotation transferAnnotation = new CommentAnnotationI();
-            transferAnnotation.setNs(omero.rtypes.rstring(NSFILETRANSFER.value));
-            transferAnnotation.setTextValue(omero.rtypes.rstring(type));
+            transferAnnotation.setNs(rstring(NSFILETRANSFER.value));
+            transferAnnotation.setTextValue(rstring(type));
             fs.linkAnnotation(transferAnnotation);
         }
 

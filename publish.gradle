@@ -8,9 +8,9 @@ task javadocJar(type: Jar) {
     from javadoc
 }
 
-task pythonZip(dependsOn: "splitPython", type: Zip) {
-    afterEvaluate { from splitPython.outputDir  }
+task pythonZip(dependsOn: "pythonTaskGroup", type: Zip) {
     classifier 'python'
+    afterEvaluate { from splitPython.outputDir  }
 }
 
 publishing {

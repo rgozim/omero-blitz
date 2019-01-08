@@ -3,7 +3,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath "gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.5.0-SNAPSHOT"
+        classpath "com.zeroc.gradle.ice-builder:slice:1.5.0-SNAPSHOT"
     }
 }
 

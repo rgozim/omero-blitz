@@ -72,7 +72,8 @@ blitz {
 
         python {
             language "python"
-            outputPath "$pythonOutputDir/omero/model"
+            outputPath pythonOutputDir
+            outputName "omero_model_\$1I"
         }
     }
 }

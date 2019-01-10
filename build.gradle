@@ -123,8 +123,8 @@ tasks.addRule('Pattern: pythonTask<ID>') { String taskName ->
         def dirAsPrefix = dir.replace("/", "_") + "_"
 
         task(taskName, type: PythonTask, dependsOn: "copySliceFiles") {
-            includeDirs = layout.files("src/generated/slice")
-            inputDir = file("src/generated/slice/${dir}")
+            includeDirs = ["src/generated/slice"]
+            inputFiles = fileTree(dir: "src/generated/slice/${dir}", include: '**.ice')
             outputDir = file("$pythonOutputDir")
             prefix = dirAsPrefix
         }

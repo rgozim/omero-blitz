@@ -1,21 +1,12 @@
-buildscript {
-    repositories {
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath "gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.4.5"
-    }
-}
+import com.zeroc.gradle.icebuilder.slice.PythonTask
 
 plugins {
     id "java"
     id 'maven-publish'
     id 'org.openmicroscopy.dsl' version '5.5.0-SNAPSHOT'
     id 'org.openmicroscopy.blitz' version '5.5.0-SNAPSHOT'
+    id 'com.zeroc.gradle.ice-builder.slice' version '1.5.0-SNAPSHOT'
 }
-
-// We have to use old plugin syntax in order for slice plugin to work
-apply plugin: "com.zeroc.gradle.ice-builder.slice"
 
 group = 'org.openmicroscopy'
 version = '5.5.0-SNAPSHOT'
@@ -56,6 +47,10 @@ sourceSets {
     }
 }
 
+ext {
+    pythonOutputDir = "$buildDir/toArchive/python"
+}
+
 /**
  * Creates .combined files that can then be split into sources.
  * In this instance, we're splitting out .java and .ice files
@@ -77,7 +72,8 @@ blitz {
 
         python {
             language "python"
-            outputPath "$buildDir/toArchive/python"
+            outputPath pythonOutputDir
+            outputName "omero_model_\$1I"
         }
     }
 }
@@ -94,23 +90,57 @@ dsl {
             outputFile "java/omero/util/IceMap.java"
         }
 
-        objectFactoryRegistry {
+        modelObjectFactoryRegistry {
             template "java_obj_reg.vm"
             outputFile "java/omero/util/ModelObjectFactoryRegistry.java"
+        }
+
+        objectFactoryRegistrar {
+            template "py_obj_reg.vm"
+            outputFile "$pythonOutputDir/omero/ObjectFactoryRegistrar.py"
         }
     }
 }
 
 slice {
     java {
-        include = [
-                file("src/generated/slice"),
-                file("src/main/slice")
-        ]
-        files = fileTree(dir: file("src/generated/slice"), include: '**/*.ice') +
-                fileTree(dir: file("src/main/slice"), include: '**/*.ice')
+        include = [file("src/generated/slice")]
+        files = fileTree(dir: file("src/generated/slice"), include: '**/*.ice')
         args = "--tie"
     }
+}
+
+task copySliceFiles(type: Copy, dependsOn: "splitIce") {
+    from "src/main/slice"
+    into "src/generated/slice"
+}
+
+tasks.addRule('Pattern: pythonTask<ID>') { String taskName ->
+    if (taskName.startsWith('pythonTask')) {
+        def id = taskName.replace("pythonTask", "")
+        def camel = id.substring(0, 1).toLowerCase() + id.substring(1)
+        def dir = camel.replaceAll("([A-Z])", '/$1').toLowerCase()
+        def dirAsPrefix = dir.replace("/", "_") + "_"
+
+        task(taskName, type: PythonTask, dependsOn: "copySliceFiles") {
+            includeDirs = [file("src/generated/slice")]
+            inputFiles = fileTree(dir: "src/generated/slice/${dir}", include: '**.ice')
+            outputDir = file("$pythonOutputDir")
+            prefix = dirAsPrefix
+        }
+    }
+}
+
+task pythonTaskGroup {
+    description "Runs all python tasks"
+    dependsOn = [
+            "generateObjectFactoryRegistrar",
+            "splitPython",
+            pythonTaskOmero,
+            pythonTaskOmeroModel,
+            pythonTaskOmeroCmd,
+            pythonTaskOmeroApi
+    ]
 }
 
 afterEvaluate {
@@ -136,7 +166,7 @@ afterEvaluate {
 }
 
 // Set compileSlice to depend on the generation of ice files from "splitIce"
-compileSlice.dependsOn "splitIce"
+compileSlice.dependsOn "copySliceFiles"
 
 // Set compileJava to additionally depend on "splitJava"
 compileJava.dependsOn "splitJava"

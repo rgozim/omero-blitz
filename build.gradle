@@ -90,9 +90,14 @@ dsl {
             outputFile "java/omero/util/IceMap.java"
         }
 
-        objectFactoryRegistry {
+        modelObjectFactoryRegistry {
             template "java_obj_reg.vm"
             outputFile "java/omero/util/ModelObjectFactoryRegistry.java"
+        }
+
+        objectFactoryRegistrar {
+            template "py_obj_reg.vm"
+            outputFile "$pythonOutputDir/omero/ObjectFactoryRegistrar.py"
         }
     }
 }
@@ -128,7 +133,14 @@ tasks.addRule('Pattern: pythonTask<ID>') { String taskName ->
 
 task pythonTaskGroup {
     description "Runs all python tasks"
-    dependsOn "splitPython", pythonTaskOmero, pythonTaskOmeroModel, pythonTaskOmeroCmd, pythonTaskOmeroApi
+    dependsOn = [
+            "generateObjectFactoryRegistrar",
+            "splitPython",
+            pythonTaskOmero,
+            pythonTaskOmeroModel,
+            pythonTaskOmeroCmd,
+            pythonTaskOmeroApi
+    ]
 }
 
 afterEvaluate {

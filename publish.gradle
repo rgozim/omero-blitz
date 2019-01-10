@@ -20,10 +20,9 @@ publishing {
             artifact sourceJar
             artifact javadocJar
         }
+
         blitzPython(MavenPublication) {
-            afterEvaluate {
-                artifact pythonZip
-            }
+            artifact pythonZip
         }
     }
 }

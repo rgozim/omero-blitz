@@ -1439,7 +1439,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     /**
      * Checks for the top-level user directory restriction before calling
-     * {@link PublicRepositoryI#makeCheckedDirs(LinkedList, boolean, Session, ServiceFactory, SqlAction, ome.system.EventContext)}
+     * {@link PublicRepositoryI#makeCheckedDirs(LinkedList, boolean, Session, ServiceFactory, SqlAction, EventContext)}
      */
     @Override
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,

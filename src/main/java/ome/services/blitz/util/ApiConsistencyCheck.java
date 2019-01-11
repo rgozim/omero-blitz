@@ -224,7 +224,7 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
                 || check.matches(Details.class, omero.model.Details.class)
                 || check.matches(Class.class, String.class)
                 || check.matches(EventContext.class,
-                        EventContext.class)
+                        omero.sys.EventContext.class)
                 || check.matches(Filter.class, omero.sys.Filter.class)
                 || check.matches(Integer.class, RInt.class)
                 || check.matches(IObject.class, omero.model.IObject.class)

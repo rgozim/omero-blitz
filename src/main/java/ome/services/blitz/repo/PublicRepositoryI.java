@@ -41,7 +41,6 @@ import java.util.Set;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
-import ome.system.EventContext;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
@@ -701,7 +700,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     public void makeDir(CheckedPath checked, boolean parents,
             Session s, ServiceFactory sf, SqlAction sql,
-            EventContext effectiveEventContext) throws ServerError {
+            ome.system.EventContext effectiveEventContext) throws ServerError {
 
         final LinkedList<CheckedPath> paths = new LinkedList<CheckedPath>();
         while (!checked.isRoot) {
@@ -738,7 +737,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      * @param effectiveEventContext
      */
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
-            boolean parents, Session s, ServiceFactory sf, SqlAction sql, EventContext effectiveEventContext) throws ServerError {
+            boolean parents, Session s, ServiceFactory sf, SqlAction sql,
+            ome.system.EventContext effectiveEventContext) throws ServerError {
 
         CheckedPath checked;
 

@@ -26,10 +26,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ome.system.EventContext;
-import ome.api.IRoles;
 import ome.api.local.LocalAdmin;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import omero.ServerError;
@@ -89,7 +89,7 @@ public class Helper {
         this.sf = sf;
         if (sf != null) {
             long userId = getEventContext().getCurrentUserId();
-            IRoles roles = sf.getAdminService().getSecurityRoles();
+            Roles roles = sf.getAdminService().getSecurityRoles();
             isGuest = (userId == roles.getGuestId());
         }
         this.log = LoggerFactory.getLogger(

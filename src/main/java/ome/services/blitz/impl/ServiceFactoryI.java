@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import ome.system.EventContext;
 import ome.api.IAdmin;
-import ome.api.IEventContext;
 import ome.api.IShare;
 import ome.api.local.LocalAdmin;
 import ome.logic.HardWiredInterceptor;
@@ -194,7 +194,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     public List<IObject> getSecurityContexts(Current __current)
             throws ServerError {
 
-        final IEventContext ec = getEventContext();
+        final EventContext ec = getEventContext();
         List<?> objs = executor.execute(principal,
                 new Executor.SimpleWork<List>(this, "getSecurityContext") {
                     @Transactional(readOnly = true)
@@ -245,7 +245,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     public void setSecurityPassword(final String password, Current __current)
             throws ServerError {
 
-        final IEventContext ec = getEventContext();
+        final EventContext ec = getEventContext();
         final String name = ec.getCurrentUserName();
         final boolean ok = sessionManager.executePasswordCheck(name, password);
         if (!ok) {
@@ -552,16 +552,16 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     }
 
     /** Doesn't take current into account */
-    public IEventContext getEventContext() {
+    public EventContext getEventContext() {
         return sessionManager.getEventContext(this.principal);
     }
 
     /** Takes current into account */
-    public IEventContext getEventContext(final Ice.Current current) {
+    public EventContext getEventContext(final Ice.Current current) {
         return executor.execute(current.ctx, this.principal,
-                new Executor.SimpleWork<IEventContext>(this, "getEventContext") {
+                new Executor.SimpleWork<EventContext>(this, "getEventContext") {
                     @Transactional(readOnly=true)
-                    public IEventContext doWork(Session session, ServiceFactory sf) {
+                    public EventContext doWork(Session session, ServiceFactory sf) {
                         return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
                     }
                 });
@@ -573,7 +573,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
                     @Transactional(readOnly=true)
                     public Boolean doWork(Session session, ServiceFactory sf) {
                         LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-                        IEventContext ec = admin.getEventContextQuiet();
+                        EventContext ec = admin.getEventContextQuiet();
                         long guestId = admin.getSecurityRoles().getGuestId();
                         return ec.getCurrentUserId().equals(guestId);
                     }

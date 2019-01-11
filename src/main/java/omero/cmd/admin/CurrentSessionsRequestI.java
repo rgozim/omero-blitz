@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.api.IEventContext;
+import ome.system.EventContext;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.SessionProvider;
@@ -158,8 +158,8 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
             for (Map.Entry<String, Map<String, Object>> entry : contexts.entrySet()) {
                 String uuid = entry.getKey();
                 Map<String, Object> data = entry.getValue();
-                IEventContext orig = new SimpleEventContext(
-                        (IEventContext) data.get("sessionContext"));
+                EventContext orig = new SimpleEventContext(
+                        (EventContext) data.get("sessionContext"));
                 Session s = objects.get(uuid);
                 if (s == null) {
                     // Non-admin

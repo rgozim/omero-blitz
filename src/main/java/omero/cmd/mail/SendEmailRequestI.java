@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.api.IEventContext;
+import ome.system.EventContext;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +73,7 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest, Rea
     public void init(Helper helper) {
         this.helper = helper;
 
-        final IEventContext ec = ((LocalAdmin) helper.getServiceFactory()
+        final EventContext ec = ((LocalAdmin) helper.getServiceFactory()
                 .getAdminService()).getEventContextQuiet();
         if (!ec.isCurrentUserAdmin()) {
             throw helper.cancel(new ERR(), null, "no-permissions",

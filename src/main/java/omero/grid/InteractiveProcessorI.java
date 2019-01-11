@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import ome.api.IEventContext;
+import ome.system.EventContext;
 import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
@@ -516,18 +516,18 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
         });
     }
 
-    private IEventContext getEventContext(final Ice.Current current) {
-        return this.ex.execute(current.ctx, this.principal, new Executor.SimpleWork<IEventContext>(this, "getEventContext") {
+    private EventContext getEventContext(final Ice.Current current) {
+        return this.ex.execute(current.ctx, this.principal, new Executor.SimpleWork<EventContext>(this, "getEventContext") {
             @Transactional(readOnly=true)
-            public IEventContext doWork(org.hibernate.Session session,
-                    ServiceFactory sf) {
+            public EventContext doWork(org.hibernate.Session session,
+                                       ServiceFactory sf) {
                     return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
             }
         });
     }
 
     private Session newSession(Current __current) {
-        IEventContext ec = getEventContext(__current);
+        EventContext ec = getEventContext(__current);
         Session newSession = mgr.createWithAgent(
                 new Principal(ec.getCurrentUserName(),
                 ec.getCurrentGroupName(), "Processing"), "OMERO.scripts", null);

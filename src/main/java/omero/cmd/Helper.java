@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import ome.api.IEventContext;
+import ome.system.EventContext;
 import ome.api.IRoles;
 import ome.api.local.LocalAdmin;
 import ome.conditions.InternalException;
@@ -361,13 +361,13 @@ public class Helper {
     }
 
     /**
-     * Provides an {@link IEventContext} instance without reloading the session,
+     * Provides an {@link EventContext} instance without reloading the session,
      * via {@link LocalAdmin#getEventContextQuiet()}.
      * @return the event context
      */
-    public IEventContext getEventContext() {
+    public EventContext getEventContext() {
         final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-        final IEventContext ec = admin.getEventContextQuiet();
+        final EventContext ec = admin.getEventContextQuiet();
         return ec;
     }
 }

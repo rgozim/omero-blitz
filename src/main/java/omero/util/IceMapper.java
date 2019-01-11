@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.api.IEventContext;
+import ome.system.EventContext;
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.ModelBased;
@@ -65,7 +65,6 @@ import omero.romio.RedBand;
 import omero.romio.XY;
 import omero.romio.XZ;
 import omero.romio.ZY;
-import omero.sys.EventContext;
 import omero.sys.Filter;
 import omero.sys.Options;
 import omero.sys.Parameters;
@@ -531,11 +530,11 @@ public class IceMapper extends ome.util.ModelMapper implements
 
     }
 
-    public static EventContext convert(IEventContext ctx) {
+    public static omero.sys.EventContext convert(EventContext ctx) {
         if (ctx == null) {
             return null;
         }
-        EventContext ec = new EventContext();
+        omero.sys.EventContext ec = new omero.sys.EventContext();
         Long event = ctx.getCurrentEventId();
         ec.eventId = event == null ? -1 : event;
 
@@ -1242,8 +1241,8 @@ public class IceMapper extends ome.util.ModelMapper implements
             return convert((Roles) o);
         } else if (Date.class.isAssignableFrom(type)) {
             return convert((Date) o);
-        } else if (IEventContext.class.isAssignableFrom(type)) {
-            return convert((IEventContext) o);
+        } else if (EventContext.class.isAssignableFrom(type)) {
+            return convert((EventContext) o);
         } else if (Set.class.isAssignableFrom(type)) {
             return map(new ArrayList((Set) o)); // Necessary since Ice
             // doesn't support Sets.

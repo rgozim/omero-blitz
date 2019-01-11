@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import ome.api.IEventContext;
+import ome.system.EventContext;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.JobHandle;
@@ -723,7 +723,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final Ice.Current __current) throws ServerError {
         try {
             /* first check for sudo to find real user's event context */
-            final IEventContext effectiveEventContext;
+            final EventContext effectiveEventContext;
             final String realSessionUuid = __current.ctx.get(PublicRepositoryI.SUDO_REAL_SESSIONUUID);
             if (realSessionUuid != null) {
                 final String realGroupName = __current.ctx.get(PublicRepositoryI.SUDO_REAL_GROUP_NAME);
@@ -736,9 +736,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     realCtx.put(omero.constants.GROUP.value, realGroupName);
                 }
                 effectiveEventContext = executor.execute(realCtx, realPrincipal,
-                        new Executor.SimpleWork<IEventContext>(this, "makeDirs", dirs) {
+                        new Executor.SimpleWork<EventContext>(this, "makeDirs", dirs) {
                     @Transactional(readOnly = true)
-                    public IEventContext doWork(Session session, ServiceFactory sf) {
+                    public EventContext doWork(Session session, ServiceFactory sf) {
                         return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
                     }
                 });
@@ -750,7 +750,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 new Executor.SimpleWork<Void>(this, "makeDirs", dirs) {
             @Transactional(readOnly = false)
             public Void doWork(Session session, ServiceFactory sf) {
-                final IEventContext eventContext;
+                final EventContext eventContext;
                 if (effectiveEventContext == null) {
                     eventContext =
                         ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
@@ -915,10 +915,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
     public omero.sys.EventContext getEventContext(Ice.Current curr) {
         final Principal currentUser = new Principal(curr.ctx.get(omero.constants.SESSIONUUID.value));
-        final IEventContext ec = executor.execute(curr.ctx, currentUser,
-                new Executor.SimpleWork<IEventContext>(this, "getEventContext") {
+        final EventContext ec = executor.execute(curr.ctx, currentUser,
+                new Executor.SimpleWork<EventContext>(this, "getEventContext") {
             @Transactional(readOnly = true)
-            public IEventContext doWork(Session session, ServiceFactory sf) {
+            public EventContext doWork(Session session, ServiceFactory sf) {
                 return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
             }
         });
@@ -1072,7 +1072,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         if (parentObjectOwnerId != roles.getRootId() || parentObjectGroupId != roles.getUserGroupId()) {
             final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-            final IEventContext ec = admin.getEventContext();
+            final EventContext ec = admin.getEventContext();
             if (!(admin.canAnnotate(parentObject) ||
                     parentObjectGroupId == roles.getUserGroupId() &&
                     ec.getCurrentGroupPermissions().isGranted(

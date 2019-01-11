@@ -40,8 +40,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import loci.formats.FormatReader;
+import ome.system.EventContext;
 import ome.api.IAdmin;
-import ome.api.IEventContext;
 import ome.api.IUpdate;
 import ome.conditions.ApiUsageException;
 import ome.formats.importer.ImportConfig;
@@ -82,7 +82,6 @@ import omero.model.PixelDataJobI;
 import omero.model.ThumbnailGenerationJob;
 import omero.model.ThumbnailGenerationJobI;
 import omero.model.UploadJob;
-import omero.sys.EventContext;
 import omero.util.IceMapper;
 
 import org.apache.commons.lang.StringUtils;
@@ -302,7 +301,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         final List<Long> filesetIds = new ArrayList<Long>();
         final List<ImportProcessPrx> proxies = new ArrayList<ImportProcessPrx>();
-        final EventContext ec = repositoryDao.getEventContext(__current);
+        final omero.sys.EventContext ec = repositoryDao.getEventContext(__current);
         final List<ProcessContainer.Process> ps
             = processes.listProcesses(ec.memberOfGroups);
 
@@ -617,7 +616,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     private class TemplateDirectoryCreator {
         private final Calendar now = Calendar.getInstance();
-        private final EventContext ctx;
+        private final omero.sys.EventContext ctx;
         private final Object consistentData;
         private final boolean createDirectories;
         private final Ice.Current current;
@@ -635,8 +634,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
          * @param current the method invocation context in which to perform queries and create directories
          * {@code null} to omit actual directory creation
          */
-        TemplateDirectoryCreator(FsFile base, FsFile todo, final EventContext ctx, final Object consistentData,
-                boolean createDirectories, Current current) {
+        TemplateDirectoryCreator(FsFile base, FsFile todo, final omero.sys.EventContext ctx, final Object consistentData,
+                                 boolean createDirectories, Current current) {
             this.ctx = ctx;
             this.consistentData = consistentData;
             this.createDirectories = createDirectories;
@@ -657,8 +656,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
          * @param sf the service factory which to perform queries
          * {@code null} to omit actual directory creation
          */
-        TemplateDirectoryCreator(FsFile base, FsFile todo, final EventContext ctx, final Object consistentData,
-                boolean createDirectories, ServiceFactory sf) {
+        TemplateDirectoryCreator(FsFile base, FsFile todo, final omero.sys.EventContext ctx, final Object consistentData,
+                                 boolean createDirectories, ServiceFactory sf) {
             if (createDirectories) {
                 throw new ApiUsageException("may not create directories with only a service factory");
             }
@@ -1234,7 +1233,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return the expanded template path
      * @throws ServerError if the path could not be expanded
      */
-    private FsFile expandTemplateRootOwnedPath(EventContext ctx, Current current) throws ServerError {
+    private FsFile expandTemplateRootOwnedPath(omero.sys.EventContext ctx, Current current) throws ServerError {
         return new TemplateDirectoryCreator(FsFile.emptyPath, templateRoot, ctx, null, false, current).create();
     }
 
@@ -1246,7 +1245,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @throws ServerError if the path could not be expanded
      */
     /* exposed for unit testing only */
-    /*private*/ protected FsFile expandTemplateRootOwnedPath(EventContext ctx, ServiceFactory sf) throws ServerError {
+    /*private*/ protected FsFile expandTemplateRootOwnedPath(omero.sys.EventContext ctx, ServiceFactory sf) throws ServerError {
         return new TemplateDirectoryCreator(FsFile.emptyPath, templateRoot, ctx, null, false, sf).create();
     }
 
@@ -1259,7 +1258,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return the expanded template path
      * @throws ServerError if the path could not be expanded and created
      */
-    private FsFile expandAndCreateTemplateUserOwnedPath(EventContext ctx, FsFile rootBase, Object consistentData, Current current)
+    private FsFile expandAndCreateTemplateUserOwnedPath(omero.sys.EventContext ctx, FsFile rootBase, Object consistentData, Current current)
             throws ServerError {
         return new TemplateDirectoryCreator(rootBase, templateUser, ctx, consistentData, true, current).create();
     }
@@ -1272,7 +1271,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @throws ServerError if the new path could not be created
      */
     protected FsFile createTemplatePath(Object consistentData, Ice.Current __current) throws ServerError {
-        final EventContext ctx = repositoryDao.getEventContext(__current);
+        final omero.sys.EventContext ctx = repositoryDao.getEventContext(__current);
 
         final FsFile rootOwnedExpanded;
         if (FsFile.emptyPath.equals(templateRoot)) {
@@ -1445,16 +1444,16 @@ public class ManagedRepositoryI extends PublicRepositoryI
     @Override
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
             boolean parents, Session s, ServiceFactory sf, SqlAction sql,
-                                   IEventContext effectiveEventContext) throws ServerError {
+                                   EventContext effectiveEventContext) throws ServerError {
 
         final IAdmin adminService = sf.getAdminService();
-        final EventContext ec = IceMapper.convert(effectiveEventContext);
+        final omero.sys.EventContext ec = IceMapper.convert(effectiveEventContext);
         final FsFile rootOwnedPath = expandTemplateRootOwnedPath(ec, sf);
         final List<CheckedPath> pathsToFix = new ArrayList<CheckedPath>();
         List<CheckedPath> pathsForRoot;
 
         /* if running as root then the paths must be root-owned */
-        final ome.api.IEventContext currentEventContext = adminService.getEventContext();
+        final EventContext currentEventContext = adminService.getEventContext();
         final long rootId = adminService.getSecurityRoles().getRootId();
         if (currentEventContext.getCurrentUserId() == rootId) {
             pathsForRoot = ImmutableList.copyOf(paths);

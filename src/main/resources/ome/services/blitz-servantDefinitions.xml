@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -15,7 +14,9 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean class="ome.services.blitz.util.ApiConsistencyCheck">
     <description>
@@ -31,7 +32,7 @@
   manages its own statefulness. See documentation in blitz/resources/omero/API.ice
   -->
 
-  <bean id="omero.api.IRoi" class="omero.api._IRoiTie" singleton="false">
+  <bean id="omero.api.IRoi" class="omero.api._IRoiTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RoiI">
             <constructor-arg ref="throttlingStrategy"/>
@@ -57,7 +58,7 @@
       <constructor-arg ref="/OMERO/Pixels"/>
   </bean>
 
-  <bean id="omero.api.IScript" class="omero.api._IScriptTie" singleton="false">
+  <bean id="omero.api.IScript" class="omero.api._IScriptTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ScriptI">
             <constructor-arg ref="throttlingStrategy"/>
@@ -70,7 +71,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.Exporter" class="omero.api._ExporterTie" singleton="false">
+  <bean id="omero.api.Exporter" class="omero.api._ExporterTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ExporterI">
             <constructor-arg ref="throttlingStrategy"/>
@@ -80,7 +81,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.ITimeline" class="omero.api._ITimelineTie" singleton="false">
+  <bean id="omero.api.ITimeline" class="omero.api._ITimelineTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.TimelineI">
             <constructor-arg ref="throttlingStrategy"/>
@@ -90,7 +91,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.grid.SharedResources" class="omero.grid._SharedResourcesTie" singleton="false">
+  <bean id="omero.grid.SharedResources" class="omero.grid._SharedResourcesTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.SharedResourcesI">
             <constructor-arg ref="throttlingStrategy"/>
@@ -110,7 +111,7 @@
   -->
 
 
-  <bean id="omero.api.IAdmin" class="omero.api._IAdminTie" singleton="false">
+  <bean id="omero.api.IAdmin" class="omero.api._IAdminTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.AdminI">
             <constructor-arg ref="managed-ome.api.IAdmin"/>
@@ -119,7 +120,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.IConfig" class="omero.api._IConfigTie" singleton="false">
+  <bean id="omero.api.IConfig" class="omero.api._IConfigTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ConfigI">
             <constructor-arg ref="managed-ome.api.IConfig"/>
@@ -128,7 +129,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.IContainer" class="omero.api._IContainerTie" singleton="false">
+  <bean id="omero.api.IContainer" class="omero.api._IContainerTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ContainerI">
             <constructor-arg ref="managed-ome.api.IContainer"/>
@@ -137,7 +138,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.ILdap" class="omero.api._ILdapTie" singleton="false">
+  <bean id="omero.api.ILdap" class="omero.api._ILdapTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.LdapI">
             <constructor-arg ref="managed-ome.api.ILdap"/>
@@ -147,7 +148,7 @@
   </bean>
 
 
-  <bean id="omero.api.IPixels" class="omero.api._IPixelsTie" singleton="false">
+  <bean id="omero.api.IPixels" class="omero.api._IPixelsTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.PixelsI">
             <constructor-arg ref="managed-ome.api.IPixels"/>
@@ -156,7 +157,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.IProjection" class="omero.api._IProjectionTie" singleton="false">
+  <bean id="omero.api.IProjection" class="omero.api._IProjectionTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ProjectionI">
             <constructor-arg ref="managed-ome.api.IProjection"/>
@@ -165,7 +166,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.IQuery" class="omero.api._IQueryTie" singleton="false">
+  <bean id="omero.api.IQuery" class="omero.api._IQueryTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.QueryI">
             <constructor-arg ref="managed-ome.api.IQuery"/>
@@ -174,7 +175,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.IRenderingSettings" class="omero.api._IRenderingSettingsTie" singleton="false">
+  <bean id="omero.api.IRenderingSettings" class="omero.api._IRenderingSettingsTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RenderingSettingsI">
             <constructor-arg ref="managed-ome.api.IRenderingSettings"/>
@@ -183,7 +184,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.IRepositoryInfo" class="omero.api._IRepositoryInfoTie" singleton="false">
+  <bean id="omero.api.IRepositoryInfo" class="omero.api._IRepositoryInfoTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RepositoryInfoI">
             <constructor-arg ref="managed-ome.api.IRepositoryInfo"/>
@@ -192,7 +193,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.ISession" class="omero.api._ISessionTie" singleton="false">
+  <bean id="omero.api.ISession" class="omero.api._ISessionTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.SessionI">
             <constructor-arg ref="managed-ome.api.ISession"/>
@@ -201,7 +202,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.IShare" class="omero.api._IShareTie" singleton="false">
+  <bean id="omero.api.IShare" class="omero.api._IShareTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ShareI">
             <constructor-arg ref="managed-ome.api.IShare"/>
@@ -210,7 +211,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.ITypes" class="omero.api._ITypesTie" singleton="false">
+  <bean id="omero.api.ITypes" class="omero.api._ITypesTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.TypesI">
             <constructor-arg ref="managed-ome.api.ITypes"/>
@@ -219,7 +220,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.IUpdate" class="omero.api._IUpdateTie" singleton="false">
+  <bean id="omero.api.IUpdate" class="omero.api._IUpdateTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.UpdateI">
             <constructor-arg ref="managed-ome.api.IUpdate"/>
@@ -228,7 +229,7 @@
     </constructor-arg>
   </bean>
 
- <bean id="omero.api.IMetadata" class="omero.api._IMetadataTie" singleton="false">
+ <bean id="omero.api.IMetadata" class="omero.api._IMetadataTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.MetadataI">
             <constructor-arg ref="managed-ome.api.IMetadata"/>
@@ -240,7 +241,7 @@
 
   <!-- Stateful ome.api service-based -->
 
-  <bean id="omero.api.JobHandle" class="omero.api._JobHandleTie" singleton="false">
+  <bean id="omero.api.JobHandle" class="omero.api._JobHandleTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.JobHandleI">
             <constructor-arg ref="managed-ome.api.JobHandle"/>
@@ -249,7 +250,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.MetadataStore" class="omero.api._MetadataStoreTie" singleton="false">
+  <bean id="omero.api.MetadataStore" class="omero.api._MetadataStoreTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.MetadataStoreI">
             <constructor-arg ref="throttlingStrategy"/>
@@ -261,7 +262,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.RawFileStore" class="omero.api._RawFileStoreTie" singleton="false">
+  <bean id="omero.api.RawFileStore" class="omero.api._RawFileStoreTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RawFileStoreI">
             <constructor-arg ref="managed-ome.api.RawFileStore"/>
@@ -270,7 +271,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.RawPixelsStore" class="omero.api._RawPixelsStoreTie" singleton="false">
+  <bean id="omero.api.RawPixelsStore" class="omero.api._RawPixelsStoreTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RawPixelsStoreI">
             <constructor-arg ref="managed-ome.api.RawPixelsStore"/>
@@ -279,7 +280,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.RenderingEngine" class="omero.api._RenderingEngineTie" singleton="false">
+  <bean id="omero.api.RenderingEngine" class="omero.api._RenderingEngineTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RenderingEngineI">
             <constructor-arg ref="managed-omeis.providers.re.RenderingEngine"/>
@@ -288,7 +289,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.Search" class="omero.api._SearchTie" singleton="false">
+  <bean id="omero.api.Search" class="omero.api._SearchTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.SearchI">
             <constructor-arg ref="managed-ome.api.Search"/>
@@ -297,7 +298,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.ThumbnailStore" class="omero.api._ThumbnailStoreTie" singleton="false">
+  <bean id="omero.api.ThumbnailStore" class="omero.api._ThumbnailStoreTie" scope="prototype">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ThumbnailStoreI">
             <constructor-arg ref="managed-ome.api.ThumbnailStore"/>
@@ -310,9 +311,9 @@
   ==============================================================================
   -->
 
-  <bean id="::omero::cmd::Handle" class="omero.cmd._HandleTie" singleton="false">
+  <bean id="::omero::cmd::Handle" class="omero.cmd._HandleTie" scope="prototype">
     <constructor-arg>
-        <bean class="omero.cmd.HandleI" singleton="false">
+        <bean class="omero.cmd.HandleI" scope="prototype">
             <constructor-arg ref="readOnlyStatus"/>
             <constructor-arg value="${omero.threads.cancel_timeout}"/>
         </bean>

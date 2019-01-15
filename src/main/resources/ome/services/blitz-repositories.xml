@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -15,7 +14,9 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="processContainer" class="ome.services.blitz.repo.ProcessContainer">
   </bean>
@@ -41,7 +42,7 @@
     <property name="targetMethod" value="takeover" />
     <property name="concurrent"   value="false"/>
   </bean>
-  <bean id="legacyRepositoryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+  <bean id="legacyRepositoryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
     <description>
     Runs periodically to give repositories a chance to take over for any dead
     instance. Calling takeover during regular initialization would cause startup
@@ -78,7 +79,7 @@
     <property name="targetMethod" value="takeover" />
     <property name="concurrent"   value="false"/>
   </bean>
-  <bean id="managedRepositoryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+  <bean id="managedRepositoryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
     <description>
     Runs periodically to give repositories a chance to take over for any dead
     instance. Calling takeover during regular initialization would cause startup
@@ -115,7 +116,7 @@
     <property name="targetMethod" value="takeover" />
     <property name="concurrent"   value="false"/>
   </bean>
-  <bean id="scriptTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+  <bean id="scriptTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
     <property name="jobDetail" ref="scriptTakeoverRun" />
     <property name="repeatInterval" value="60000" />
   </bean>
@@ -132,7 +133,7 @@
     <property name="targetObject" ref="paramsCache" />
     <property name="targetMethod" value="lookupAll" />
   </bean>
-  <bean id="paramsCacheTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+  <bean id="paramsCacheTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
     <property name="cronExpression" value="${omero.scripts.cache.cron}"/>
     <property name="jobDetail" ref="paramsCacheRun"/>
   </bean>
@@ -146,7 +147,7 @@
     <property name="targetObject" ref="paramsCache" />
     <property name="targetMethod" value="lookupAll" />
   </bean>
-  <bean id="paramsCacheStartupTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+  <bean id="paramsCacheStartupTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
     <property name="startDelay" value="15000"/>
     <property name="repeatCount" value="0"/>
     <property name="repeatInterval" value="86400000"/><!-- 1 day just in case -->

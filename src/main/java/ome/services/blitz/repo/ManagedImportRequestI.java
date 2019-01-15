@@ -32,7 +32,7 @@ import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.MIASReader;
-import ome.api.IEventContext;
+import ome.system.EventContext;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.ImportConfig;
@@ -212,7 +212,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         this.helper = helper;
         helper.setSteps(5);
 
-        final IEventContext ec = helper.getEventContext();
+        final EventContext ec = helper.getEventContext();
         final ImportConfig config = new ImportConfig();
         final String sessionUuid = ec.getCurrentSessionUuid();
 

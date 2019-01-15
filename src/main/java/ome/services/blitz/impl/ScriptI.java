@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import ome.api.IEventContext;
+import ome.system.EventContext;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
@@ -272,7 +272,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         assertCanWriteFiles(__current, true);
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
-                IEventContext ec = factory.getEventContext();
+                EventContext ec = factory.getEventContext();
                 if ( ! ec.isCurrentUserAdmin() ) {
                     throw new omero.SecurityViolation(null, null, "User is not an administrator");
                 }

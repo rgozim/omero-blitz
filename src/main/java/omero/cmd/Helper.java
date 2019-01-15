@@ -25,11 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import ome.api.IEventContext;
-import ome.api.IRoles;
+import ome.system.EventContext;
 import ome.api.local.LocalAdmin;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import omero.ServerError;
@@ -89,7 +89,7 @@ public class Helper {
         this.sf = sf;
         if (sf != null) {
             long userId = getEventContext().getCurrentUserId();
-            IRoles roles = sf.getAdminService().getSecurityRoles();
+            Roles roles = sf.getAdminService().getSecurityRoles();
             isGuest = (userId == roles.getGuestId());
         }
         this.log = LoggerFactory.getLogger(
@@ -361,13 +361,13 @@ public class Helper {
     }
 
     /**
-     * Provides an {@link IEventContext} instance without reloading the session,
+     * Provides an {@link EventContext} instance without reloading the session,
      * via {@link LocalAdmin#getEventContextQuiet()}.
      * @return the event context
      */
-    public IEventContext getEventContext() {
+    public EventContext getEventContext() {
         final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-        final IEventContext ec = admin.getEventContextQuiet();
+        final EventContext ec = admin.getEventContextQuiet();
         return ec;
     }
 }

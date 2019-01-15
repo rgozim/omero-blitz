@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -15,7 +14,9 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="configuration" class="ome.services.blitz.util.BlitzConfiguration"
     destroy-method="destroy">
@@ -59,7 +60,7 @@
     <property name="targetObject" ref="BlitzManager" />
     <property name="targetMethod" value="requestHeartBeats" />
   </bean>
-  <bean id="requestHeartBeatsTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+  <bean id="requestHeartBeatsTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
     <property name="cronExpression" value="0 0/3 * * * ?" />
     <property name="jobDetail" ref="requestHeartBeatsRun"/>
   </bean>
@@ -68,7 +69,7 @@
     <property name="targetObject" ref="ring" />
     <property name="targetMethod" value="checkCluster" />
   </bean>
-  <bean id="clusterCheckTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+  <bean id="clusterCheckTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
     <property name="cronExpression" value="13 0/30 * * * ?" />
     <property name="jobDetail" ref="clusterCheckRun"/>
   </bean>

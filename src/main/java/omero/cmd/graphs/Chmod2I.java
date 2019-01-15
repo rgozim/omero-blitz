@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ome.api.IEventContext;
+import ome.system.EventContext;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,7 +154,7 @@ public class Chmod2I extends Chmod2 implements IRequest, ReadOnlyStatus.IsAware,
         }
 
         /* if the current user is not an administrator then find of which groups the target user is a owner */
-        final IEventContext eventContext = helper.getEventContext();
+        final EventContext eventContext = helper.getEventContext();
 
         if (eventContext.isCurrentUserAdmin()) {
             acceptableGroups = null;

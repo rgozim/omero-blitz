@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ome.system.EventContext;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -222,8 +223,8 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
                 || check.matches(Date.class, RTime.class)
                 || check.matches(Details.class, omero.model.Details.class)
                 || check.matches(Class.class, String.class)
-                || check.matches(ome.api.IEventContext.class,
-                        ome.api.IEventContext.class)
+                || check.matches(EventContext.class,
+                        omero.sys.EventContext.class)
                 || check.matches(Filter.class, omero.sys.Filter.class)
                 || check.matches(Integer.class, RInt.class)
                 || check.matches(IObject.class, omero.model.IObject.class)

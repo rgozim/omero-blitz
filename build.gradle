@@ -16,7 +16,6 @@ targetCompatibility = JavaVersion.VERSION_1_8
 repositories {
     mavenCentral()
     mavenLocal()
-    maven { url 'http://repo.boundlessgeo.com/main/' }
 }
 
 dependencies {
@@ -87,7 +86,7 @@ dsl {
             dir: "src/main/resources/templates",
             include: '**/*.vm'
     )
-    outputDir = "src/generated"
+    outputDir "src/generated"
 
     resource {
         iceMap {
@@ -113,6 +112,10 @@ slice {
         files = fileTree(dir: file("src/generated/slice"), include: '**/*.ice')
         args = "--tie"
     }
+}
+
+clean {
+    delete "src/generated"
 }
 
 task copySliceFiles(type: Copy, dependsOn: "splitIce") {
@@ -168,10 +171,6 @@ afterEvaluate {
             srcDirs 'src/main/ice36', slice.output
         }
     }
-}
-
-clean {
-    delete "src/generated"
 }
 
 // Set compileSlice to depend on the generation of ice files from "splitIce"

@@ -1,7 +1,7 @@
 import com.zeroc.gradle.icebuilder.slice.PythonTask
 
 plugins {
-    id "java"
+    id "java-library"
     id 'maven-publish'
     id 'org.openmicroscopy.dsl' version '5.5.0-SNAPSHOT'
     id 'org.openmicroscopy.blitz' version '5.5.0-SNAPSHOT'
@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'org.openmicroscopy:omero-server:5.5.0-SNAPSHOT'
+    api 'org.openmicroscopy:omero-server:5.5.0-SNAPSHOT'
 
     implementation 'com.sun.activation:javax.activation:1.2.0'
 
@@ -57,33 +57,38 @@ ext {
  * from .combined files.
  **/
 blitz {
-    outputPath "src/generated"
+    outputDir "src/generated"
     api {
         java {
             language "java"
-            outputPath "java/omero/model"
+            outputDir "java/omero/model"
         }
 
         ice {
             language "ice"
-            outputPath "slice/omero/model"
+            outputDir "slice/omero/model"
             outputName "\$1"
         }
 
         python {
             language "python"
-            outputPath pythonOutputDir
+            outputDir pythonOutputDir
             outputName "omero_model_\$1I"
         }
     }
 }
 
 dsl {
+    omeXmlFiles fileTree(
+            dir: importOmeXmlTask.extractDir,
+            include: '**/*.ome.xml'
+    )
     templateFiles fileTree(
             dir: "src/main/resources/templates",
             include: '**/*.vm'
     )
-    outputPath "src/generated"
+    outputDir = "src/generated"
+
     resource {
         iceMap {
             template "java_ice_map.vm"
@@ -163,6 +168,10 @@ afterEvaluate {
             srcDirs 'src/main/ice36', slice.output
         }
     }
+}
+
+clean {
+    delete "src/generated"
 }
 
 // Set compileSlice to depend on the generation of ice files from "splitIce"

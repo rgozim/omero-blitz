@@ -80,14 +80,7 @@ blitz {
 }
 
 dsl {
-    omeXmlFiles fileTree(
-            dir: importOmeXmlTask.extractDir,
-            include: '**/*.ome.xml'
-    )
-    templateFiles fileTree(
-            dir: "src/main/resources/templates",
-            include: '**/*.vm'
-    )
+    templatesDir "src/main/resources/templates"
     outputDir "src/generated"
 
     resource {

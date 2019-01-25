@@ -37,17 +37,6 @@ dependencies {
     implementation 'net.sf.ehcache:ehcache:2.10.6'
 }
 
-sourceSets {
-    main {
-        java {
-            srcDirs "src/generated/java"
-        }
-        resources {
-            srcDirs "src/generated/resources"
-        }
-    }
-}
-
 ext {
     pythonOutputDir = "$buildDir/toArchive/python"
 }
@@ -58,7 +47,6 @@ ext {
  * from .combined files.
  **/
 blitz {
-    outputDir "src/generated"
     api {
         java {
             language "java"
@@ -80,8 +68,9 @@ blitz {
 }
 
 dsl {
+    outputDir blitz.outputDir
+    omeXmlFiles importOmeXmlTask
     templatesDir "src/main/resources/templates"
-    outputDir "src/generated"
 
     resource {
         iceMap {
@@ -99,6 +88,10 @@ dsl {
             outputFile "$pythonOutputDir/omero/ObjectFactoryRegistrar.py"
         }
     }
+}
+
+clean {
+    delete blitz.outputDir
 }
 
 slice {

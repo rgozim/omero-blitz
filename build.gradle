@@ -1,5 +1,3 @@
-import com.zeroc.gradle.icebuilder.slice.PythonTask
-
 plugins {
     id "java-library"
     id 'maven-publish'
@@ -67,6 +65,9 @@ ext {
  * from .combined files.
  **/
 blitz {
+    template = "src/main/resources/templates/combined.vm"
+    databaseType = "psql"
+
     api {
         java {
             language "java"
@@ -89,8 +90,9 @@ blitz {
 
 dsl {
     outputDir blitz.outputDir
-    omeXmlFiles importOmeXmlTask
-    templatesDir "src/main/resources/templates"
+    databaseType blitz.databaseType
+    omeXmlFiles = importMappings  // fileTree(dir: "$buildDir/mappings", include: "*.ome.xml") // importMappings
+    databaseTypes = importDatabaseTypes // fileTree(dir: "$buildDir/properties", include: "*.properties")// importDatabaseTypes
 
     resource {
         iceMap {
@@ -122,10 +124,6 @@ slice {
     }
 }
 
-clean {
-    delete "src/generated"
-}
-
 task copySliceFiles(type: Copy, dependsOn: "splitIce") {
     from "src/main/slice"
     into "src/generated/slice"
@@ -138,7 +136,7 @@ tasks.addRule('Pattern: pythonTask<ID>') { String taskName ->
         def dir = camel.replaceAll("([A-Z])", '/$1').toLowerCase()
         def dirAsPrefix = dir.replace("/", "_") + "_"
 
-        task(taskName, type: PythonTask, dependsOn: "copySliceFiles") {
+        task(taskName, type: com.zeroc.gradle.icebuilder.slice.PythonTask, dependsOn: "copySliceFiles") {
             includeDirs = "src/generated/slice"
             inputFiles = fileTree(dir: "src/generated/slice/${dir}", include: '**.ice')
             outputDir = file("$pythonOutputDir")

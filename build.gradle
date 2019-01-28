@@ -14,8 +14,8 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
     maven { url 'https://artifacts.openmicroscopy.org/artifactory/maven/' }
 }
 
@@ -70,7 +70,10 @@ blitz {
 dsl {
     outputDir blitz.outputDir
     omeXmlFiles importOmeXmlTask
-    templatesDir "src/main/resources/templates"
+    databaseTypes "$buildDir/mappings/psql-types.properties"
+    blitz.databaseTypes databaseTypes
+    blitz.template "src/main/resources/templates/combined.vm"
+
 
     resource {
         iceMap {
@@ -139,7 +142,7 @@ task pythonTaskGroup {
     ]
 }
 
-afterEvaluate {
+beforeEvaluate {
     if (slice.iceVersion.contains('3.7')) {
         slice.output = file('src/generated/ice37')
         dependencies {
@@ -152,8 +155,8 @@ afterEvaluate {
     } else if (slice.iceVersion.contains('3.6')) {
         slice.output = file('src/generated/ice36')
         dependencies {
-            implementation 'com.zeroc:icegrid:3.6.+'
-            implementation 'com.zeroc:icestorm:3.6.+'
+            implementation 'com.zeroc:icegrid:3.6.4'
+            implementation 'com.zeroc:icestorm:3.6.4'
         }
         sourceSets.main.java {
             srcDirs 'src/main/ice36', slice.output

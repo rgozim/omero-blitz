@@ -89,10 +89,9 @@ blitz {
 }
 
 dsl {
-    outputDir blitz.outputDir
-    databaseType blitz.databaseType
-    omeXmlFiles = importMappings  // fileTree(dir: "$buildDir/mappings", include: "*.ome.xml") // importMappings
-    databaseTypes = importDatabaseTypes // fileTree(dir: "$buildDir/properties", include: "*.properties")// importDatabaseTypes
+    omeXmlFiles fileTree(dir: "$buildDir/mappings", include: "**/*.ome.xml")
+    databaseTypes fileTree(dir: "$buildDir/properties", include: "**/*.properties")
+    databaseType "psql"
 
     resource {
         iceMap {

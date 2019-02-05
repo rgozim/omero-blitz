@@ -66,9 +66,6 @@ ext {
     pythonOutputDir = "$buildDir/toArchive/python"
 }
 
-//project.configurations.each {
-//    println "$it.name"
-//}
 
 ResolvedArtifact artifact = new ImportHelper(project).getOmeroModelArtifact()
 
@@ -95,6 +92,7 @@ task importDbTypes(type: Sync) {
     with copySpec
 }
 
+
 task printImports {
     doLast {
         def found = files(importDbTypes).asFileTree
@@ -104,38 +102,29 @@ task printImports {
     }
 }
 
-task resolveOmeXmlTask () {
-
-}
-
-def createCallable(Project project, Sync importDbTask) {
-    return new Callable<File>() {
+static Provider<File> createCallable(Project project, Sync importDbTask) {
+    project.provider(new Callable<File>() {
         @Override
         File call() throws Exception {
             return project.files(importDbTask).asFileTree
                     .matching { include "**/*.properties" }
                     .files.find { it.name == "psql-types.properties" }
         }
-    }
+    })
 }
 
 task genCombined(type: FilesGeneratorTask) {
     dependsOn importDbTypes
-
     outputDir = "$buildDir/temp"
     formatOutput = { SemanticType st -> "${st.getShortname()}I.combinedFiles" }
     omeXmlFiles = importMps
-    template = file("src/main/resources/templates/combined.vm")
-    databaseType = project.provider(createCallable(project, importDbTypes)).get()
-
-//    doFirst {
-//        def found = files(importDbTypes).asFileTree
-//                .matching { include "**/*.properties" }
-//                .files.find { it.name == "psql-types.properties" }
-//        databaseType found
-//    }
+    template.set(file("src/main/resources/templates/combined.vm"))
+    databaseType.set project.layout.file(createCallable(project, importDbTypes))
 }
 
+clean {
+    delete "src/generated"
+}
 
 /**
  * Creates .combined files that can then be split into sources.
@@ -183,9 +172,7 @@ task genCombined(type: FilesGeneratorTask) {
 //    }
 // }
 
-clean {
-    delete blitz.outputDir
-}
+
 
 //slice {
 //    java {

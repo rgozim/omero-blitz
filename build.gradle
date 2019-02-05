@@ -1,3 +1,11 @@
+import ome.dsl.SemanticType
+import org.openmicroscopy.blitz.ImportHelper
+import org.openmicroscopy.dsl.FileTypes
+import org.openmicroscopy.dsl.tasks.FilesGeneratorTask
+
+import java.util.concurrent.Callable
+
+
 plugins {
     id "java-library"
     id 'maven-publish'
@@ -58,106 +66,173 @@ ext {
     pythonOutputDir = "$buildDir/toArchive/python"
 }
 
+//project.configurations.each {
+//    println "$it.name"
+//}
+
+ResolvedArtifact artifact = new ImportHelper(project).getOmeroModelArtifact()
+
+CopySpec copySpec = project.copySpec(new Action<CopySpec>() {
+    @Override
+    void execute(CopySpec copySpec) {
+        copySpec.from project.zipTree(artifact.file)
+        copySpec.eachFile { FileCopyDetails copyDetails ->
+            copyDetails.path = copyDetails.name
+        }
+        copySpec.includeEmptyDirs = false
+    }
+})
+
+task importMps(type: Sync) {
+    into "$project.buildDir/mappings"
+    include FileTypes.PATTERN_OME_XML
+    with copySpec
+}
+
+task importDbTypes(type: Sync) {
+    into "$project.buildDir/properties"
+    include FileTypes.PATTERN_DB_TYPE
+    with copySpec
+}
+
+task printImports {
+    doLast {
+        def found = files(importDbTypes).asFileTree
+                .matching { include "**/*.properties" }
+                .files.find { it.name == "psql-types.properties" }
+        println found
+    }
+}
+
+task resolveOmeXmlTask () {
+
+}
+
+def createCallable(Project project, Sync importDbTask) {
+    return new Callable<File>() {
+        @Override
+        File call() throws Exception {
+            return project.files(importDbTask).asFileTree
+                    .matching { include "**/*.properties" }
+                    .files.find { it.name == "psql-types.properties" }
+        }
+    }
+}
+
+task genCombined(type: FilesGeneratorTask) {
+    dependsOn importDbTypes
+
+    outputDir = "$buildDir/temp"
+    formatOutput = { SemanticType st -> "${st.getShortname()}I.combinedFiles" }
+    omeXmlFiles = importMps
+    template = file("src/main/resources/templates/combined.vm")
+    databaseType = project.provider(createCallable(project, importDbTypes)).get()
+
+//    doFirst {
+//        def found = files(importDbTypes).asFileTree
+//                .matching { include "**/*.properties" }
+//                .files.find { it.name == "psql-types.properties" }
+//        databaseType found
+//    }
+}
+
+
 /**
  * Creates .combined files that can then be split into sources.
  * In this instance, we're splitting out .java and .ice files
  * from .combined files.
  **/
-blitz {
-    template = "src/main/resources/templates/combined.vm"
-    databaseType = "psql"
+//blitz {
+//    database "psql"
+//
+//    singleFile {
+//        iceMap {
+//            template "java_ice_map.vm"
+//            outputFile "java/omero/util/IceMap.java"
+//        }
+//
+//        modelObjectFactoryRegistry {
+//            template "java_obj_reg.vm"
+//            outputFile "java/omero/util/ModelObjectFactoryRegistry.java"
+//        }
+//
+//        objectFactoryRegistrar {
+//            template "py_obj_reg.vm"
+//            outputFile "$pythonOutputDir/omero/ObjectFactoryRegistrar.py"
+//        }
+//    }
 
-    api {
-        java {
-            language "java"
-            outputDir "java/omero/model"
-        }
 
-        ice {
-            language "ice"
-            outputDir "slice/omero/model"
-            outputName "\$1"
-        }
-
-        python {
-            language "python"
-            outputDir pythonOutputDir
-            outputName "omero_model_\$1I"
-        }
-    }
-}
-
-dsl {
-    databaseType "psql"
-
-    resource {
-        iceMap {
-            template "java_ice_map.vm"
-            outputFile "java/omero/util/IceMap.java"
-        }
-
-        modelObjectFactoryRegistry {
-            template "java_obj_reg.vm"
-            outputFile "java/omero/util/ModelObjectFactoryRegistry.java"
-        }
-
-        objectFactoryRegistrar {
-            template "py_obj_reg.vm"
-            outputFile "$pythonOutputDir/omero/ObjectFactoryRegistrar.py"
-        }
-    }
-}
+//    api {
+//        java {
+//            language "java"
+//            outputDir "java/omero/model"
+//        }
+//
+//        ice {
+//            language "ice"
+//            outputDir "slice/omero/model"
+//            outputName "\$1"
+//        }
+//
+//        python {
+//            language "python"
+//            outputDir pythonOutputDir
+//            outputName "omero_model_\$1I"
+//        }
+//    }
+// }
 
 clean {
     delete blitz.outputDir
 }
 
-slice {
-    java {
-        include = [file("src/generated/slice")]
-        files = fileTree(dir: file("src/generated/slice"), include: '**/*.ice')
-        args = "--tie"
-    }
-}
-
-task copySliceFiles(type: Copy, dependsOn: "splitIce") {
-    from "src/main/slice"
-    into "src/generated/slice"
-}
-
-tasks.addRule('Pattern: pythonTask<ID>') { String taskName ->
-    if (taskName.startsWith('pythonTask')) {
-        def id = taskName.replace("pythonTask", "")
-        def camel = id.substring(0, 1).toLowerCase() + id.substring(1)
-        def dir = camel.replaceAll("([A-Z])", '/$1').toLowerCase()
-        def dirAsPrefix = dir.replace("/", "_") + "_"
-
-        task(taskName, type: com.zeroc.gradle.icebuilder.slice.PythonTask, dependsOn: "copySliceFiles") {
-            includeDirs = "src/generated/slice"
-            inputFiles = fileTree(dir: "src/generated/slice/${dir}", include: '**.ice')
-            outputDir = file("$pythonOutputDir")
-            prefix = dirAsPrefix
-        }
-    }
-}
-
-task pythonTaskGroup {
-    description "Runs all python tasks"
-    dependsOn = [
-            "generateObjectFactoryRegistrar",
-            "splitPython",
-            pythonTaskOmero,
-            pythonTaskOmeroModel,
-            pythonTaskOmeroCmd,
-            pythonTaskOmeroApi
-    ]
-}
+//slice {
+//    java {
+//        include = [file("src/generated/slice")]
+//        files = fileTree(dir: file("src/generated/slice"), include: '**/*.ice')
+//        args = "--tie"
+//    }
+//}
+//
+//task copySliceFiles(type: Copy, dependsOn: "splitIce") {
+//    from "src/main/slice"
+//    into "src/generated/slice"
+//}
+//
+//tasks.addRule('Pattern: pythonTask<ID>') { String taskName ->
+//    if (taskName.startsWith('pythonTask')) {
+//        def id = taskName.replace("pythonTask", "")
+//        def camel = id.substring(0, 1).toLowerCase() + id.substring(1)
+//        def dir = camel.replaceAll("([A-Z])", '/$1').toLowerCase()
+//        def dirAsPrefix = dir.replace("/", "_") + "_"
+//
+//        task(taskName, type: com.zeroc.gradle.icebuilder.slice.PythonTask, dependsOn: "copySliceFiles") {
+//            includeDirs = "src/generated/slice"
+//            inputFiles = fileTree(dir: "src/generated/slice/${dir}", include: '**.ice')
+//            outputDir = file("$pythonOutputDir")
+//            prefix = dirAsPrefix
+//        }
+//    }
+//}
+//
+//task pythonTaskGroup {
+//    description "Runs all python tasks"
+//    dependsOn = [
+//            "generateObjectFactoryRegistrar",
+//            "splitPython",
+//            pythonTaskOmero,
+//            pythonTaskOmeroModel,
+//            pythonTaskOmeroCmd,
+//            pythonTaskOmeroApi
+//    ]
+//}
 
 // Set compileSlice to depend on the generation of ice files from "splitIce"
-compileSlice.dependsOn "copySliceFiles"
-
-// Set compileJava to additionally depend on "splitJava"
-compileJava.dependsOn "splitJava"
+//compileSlice.dependsOn "copySliceFiles"
+//
+//// Set compileJava to additionally depend on "splitJava"
+//compileJava.dependsOn "splitJava"
 
 // Add publish functionality
-apply from: 'publish.gradle'
+//apply from: 'publish.gradle'

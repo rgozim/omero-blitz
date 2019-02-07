@@ -1,11 +1,3 @@
-import ome.dsl.SemanticType
-import org.openmicroscopy.blitz.ImportHelper
-import org.openmicroscopy.dsl.FileTypes
-import org.openmicroscopy.dsl.tasks.FilesGeneratorTask
-
-import java.util.concurrent.Callable
-
-
 plugins {
     id "java-library"
     id 'maven-publish'
@@ -64,66 +56,11 @@ if (slice.iceVersion.contains('3.7')) {
 
 ext {
     pythonOutputDir = "$buildDir/toArchive/python"
-}
-
-
-ResolvedArtifact artifact = new ImportHelper(project).getOmeroModelArtifact()
-
-CopySpec copySpec = project.copySpec(new Action<CopySpec>() {
-    @Override
-    void execute(CopySpec copySpec) {
-        copySpec.from project.zipTree(artifact.file)
-        copySpec.eachFile { FileCopyDetails copyDetails ->
-            copyDetails.path = copyDetails.name
-        }
-        copySpec.includeEmptyDirs = false
-    }
-})
-
-task importMps(type: Sync) {
-    into "$project.buildDir/mappings"
-    include FileTypes.PATTERN_OME_XML
-    with copySpec
-}
-
-task importDbTypes(type: Sync) {
-    into "$project.buildDir/properties"
-    include FileTypes.PATTERN_DB_TYPE
-    with copySpec
-}
-
-
-task printImports {
-    doLast {
-        def found = files(importDbTypes).asFileTree
-                .matching { include "**/*.properties" }
-                .files.find { it.name == "psql-types.properties" }
-        println found
-    }
-}
-
-static Provider<File> createCallable(Project project, Sync importDbTask) {
-    project.provider(new Callable<File>() {
-        @Override
-        File call() throws Exception {
-            return project.files(importDbTask).asFileTree
-                    .matching { include "**/*.properties" }
-                    .files.find { it.name == "psql-types.properties" }
-        }
-    })
-}
-
-task genCombined(type: FilesGeneratorTask) {
-    dependsOn importDbTypes
-    outputDir = "$buildDir/temp"
-    formatOutput = { SemanticType st -> "${st.getShortname()}I.combinedFiles" }
-    omeXmlFiles = importMps
-    template.set(file("src/main/resources/templates/combined.vm"))
-    databaseType.set project.layout.file(createCallable(project, importDbTypes))
+    generatedDir = "src/generated"
 }
 
 clean {
-    delete "src/generated"
+    delete generatedDir
 }
 
 /**
@@ -131,25 +68,25 @@ clean {
  * In this instance, we're splitting out .java and .ice files
  * from .combined files.
  **/
-//blitz {
-//    database "psql"
-//
-//    singleFile {
-//        iceMap {
-//            template "java_ice_map.vm"
-//            outputFile "java/omero/util/IceMap.java"
-//        }
-//
-//        modelObjectFactoryRegistry {
-//            template "java_obj_reg.vm"
-//            outputFile "java/omero/util/ModelObjectFactoryRegistry.java"
-//        }
-//
-//        objectFactoryRegistrar {
-//            template "py_obj_reg.vm"
-//            outputFile "$pythonOutputDir/omero/ObjectFactoryRegistrar.py"
-//        }
-//    }
+blitz {
+    database "psql"
+
+    singleFile {
+        iceMap {
+            template "java_ice_map.vm"
+            outputFile "java/omero/util/IceMap.java"
+        }
+
+        modelObjectFactoryRegistry {
+            template "java_obj_reg.vm"
+            outputFile "java/omero/util/ModelObjectFactoryRegistry.java"
+        }
+
+        objectFactoryRegistrar {
+            template "py_obj_reg.vm"
+            outputFile "$pythonOutputDir/omero/ObjectFactoryRegistrar.py"
+        }
+    }
 
 
 //    api {
@@ -170,8 +107,7 @@ clean {
 //            outputName "omero_model_\$1I"
 //        }
 //    }
-// }
-
+}
 
 
 //slice {
@@ -223,3 +159,42 @@ clean {
 
 // Add publish functionality
 //apply from: 'publish.gradle'
+
+
+
+
+
+
+//task nestedSpecs(type: Copy) {
+//    into "$buildDir/libs"
+//    from(configurations.runtimeClasspath) {
+//        include "*omero-model*"
+//    }
+//}
+//
+//plugins.withType(JavaPlugin) {
+//    def artifact = configurations.runtimeClasspath
+//            .resolvedConfiguration
+//            .resolvedArtifacts
+//            .find { item -> item.name.contains("omero-model") }
+//
+//    task importMps(type: Sync) {
+//        into "$project.buildDir"
+//        into ("mappings") {
+//            from zipTree(artifact.file)
+//            include "**/*.ome.xml"
+//        }
+//        into ("databaseTypes") {
+//            from zipTree(artifact.file)
+//            include "**/*-types*.properties"
+//        }
+//        includeEmptyDirs = false
+//    }
+//}
+
+//task importMps(type: Sync) {
+//    dependsOn configurations.runtimeClasspath
+//    into "$project.buildDir/mappings"
+//    include "**/*.ome.xml"
+//    with copySpec
+//}

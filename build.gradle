@@ -1,6 +1,7 @@
 plugins {
     id "java-library"
     id 'maven-publish'
+    id "com.jfrog.artifactory" version "4.9.1"
     id 'org.openmicroscopy.api' version '5.5.0-SNAPSHOT'
     id 'org.openmicroscopy.dsl' version '5.5.0-SNAPSHOT'
     id 'org.openmicroscopy.blitz' version '5.5.0-SNAPSHOT'
@@ -13,8 +14,8 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
-    mavenCentral()
     mavenLocal()
+    jcenter()
     maven { url 'https://artifacts.openmicroscopy.org/artifactory/maven/' }
 }
 

@@ -1,10 +1,10 @@
 plugins {
     id "java-library"
-    id "org.openmicroscopy.api" version "5.5.0-m5"
-    id "org.openmicroscopy.dsl" version "5.5.0-m6"
-    id "org.openmicroscopy.blitz" version "5.5.0-m5"
-    id "org.openmicroscopy.project" version "5.5.0-m5"
-    id "org.openmicroscopy.gradle.ice-builder.slice" version "1.5.0-m4"
+    id "org.openmicroscopy.api" version "5.5.0-SNAPSHOT"
+    id "org.openmicroscopy.dsl" version "5.5.0-SNAPSHOT"
+    id "org.openmicroscopy.blitz" version "5.5.0-SNAPSHOT"
+    id "org.openmicroscopy.project" version "5.5.0-SNAPSHOT"
+    id "org.openmicroscopy.gradle.ice-builder.slice" version "1.5.0-SNAPSHOT"
 }
 
 group = "org.openmicroscopy"
@@ -21,6 +21,7 @@ java {
 }
 
 ext {
+    docsOutputDir = "$buildDir/toArchive/docs"
     pythonOutputDir = "$buildDir/toArchive/python"
     generatedDir = "${blitz.outputDir.get()}"
     generatedSliceDir = "${generatedDir}/slice"
@@ -34,7 +35,7 @@ dependencies {
     testImplementation('org.openmicroscopy:omero-common-test:5.5.0-m8')
     testImplementation('org.quartz-scheduler:quartz:2.2.1')
 
-    api("org.openmicroscopy:omero-server:5.5.0-m9")
+    api("org.openmicroscopy:omero-server:5.5.0-SNAPSHOT")
 
     implementation("com.sun.activation:javax.activation:1.2.0")
     implementation("org.ini4j:ini4j:0.4.1")
@@ -134,6 +135,12 @@ slice {
         files = fileTree(dir: file("${generatedSliceDir}"), include: "**/*.ice")
         args = "--tie"
     }
+}
+
+task iceDocs(type: com.zeroc.gradle.icebuilder.slice.DocsTask, dependsOn: "copySliceFiles") {
+    includeDirs = files("${generatedSliceDir}")
+    sourceFiles = fileTree(dir: "${generatedSliceDir}", include: "**/*.ice")
+    outputDir = file("$docsOutputDir")
 }
 
 tasks.addRule("Pattern: pythonTask<ID>") { String taskName ->

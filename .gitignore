@@ -9,7 +9,10 @@
 *.class
 
 # generated files
-/build
+build
+bin
+tmp
+out
 
 # Local configuration file (sdk path, etc)
 local.properties

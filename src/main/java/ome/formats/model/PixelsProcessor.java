@@ -159,7 +159,7 @@ public class PixelsProcessor implements ModelProcessor {
         saveName = imageName;
       }
       if (saveName != null && saveName.length() > 255) {
-        saveName = '…' + saveName.substring(saveName.length() - 254);
+        saveName = "..." + saveName.substring(saveName.length() - 254);
       }
       image.setName(rstring(saveName));
 

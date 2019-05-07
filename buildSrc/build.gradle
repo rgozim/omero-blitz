@@ -1,0 +1,39 @@
+plugins {
+    id "groovy"
+    id "java-gradle-plugin"
+}
+
+group = "org.openmicroscopy"
+version = "5.5.0-SNAPSHOT"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven {
+        setUrl("https://artifacts.openmicroscopy.org/artifactory/maven/")
+    }
+}
+
+dependencies {
+    implementation("org.openmicroscopy:omero-blitz-plugin:5.5.0-SNAPSHOT")
+    implementation("org.openmicroscopy.gradle.ice-builder:slice:1.5.0-SNAPSHOT")
+}
+
+gradlePlugin {
+    plugins {
+        register("blitz-ice-plugin") {
+            id = "org.openmicroscopy.blitz-ice"
+            implementationClass = "org.openmicroscopy.BlitzIcePlugin"
+        }
+
+        register("blitz-ice-python-plugin") {
+            id = "org.openmicroscopy.blitz-ice-python"
+            implementationClass = "org.openmicroscopy.BlitzIcePythonPlugin"
+        }
+    }
+}

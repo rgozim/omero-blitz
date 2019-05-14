@@ -89,3 +89,8 @@ publishing {
         }
     }
 }
+
+compileIcedoc {
+    header = file("docs/header.txt")
+    footer = file("docs/footer.txt")
+}

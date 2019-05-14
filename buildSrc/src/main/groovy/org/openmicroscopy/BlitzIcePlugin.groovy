@@ -85,8 +85,7 @@ class BlitzIcePlugin implements Plugin<Project> {
     void configureTaskOrdering() {
         // Compile slice depends on all ice files being present
         project.tasks.named(IcePlugin.TASK_COMPILE_ICE).configure {
-            it.dependsOn("combinedToIce", TASK_COPY_ICE_FILES)
-            it.mustRunAfter("combinedToIce", TASK_COPY_ICE_FILES)
+            it.dependsOn(TASK_COPY_ICE_FILES, "combinedToIce")
         }
 
         // Ice docs task depends on all ice files being present

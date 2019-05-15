@@ -20,6 +20,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.openmicroscopy:omero-dsl-plugin:5.5.0-SNAPSHOT")
+    implementation("org.openmicroscopy:omero-api-plugin:5.5.0-SNAPSHOT")
     implementation("org.openmicroscopy:omero-blitz-plugin:5.5.0-SNAPSHOT")
     implementation("org.openmicroscopy.gradle.ice-builder:slice:1.5.0-SNAPSHOT")
 }

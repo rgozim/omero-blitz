@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
@@ -11,7 +12,10 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.openmicroscopy.api.extensions.ApiExtension
 import org.openmicroscopy.api.extensions.SplitExtension
+import org.openmicroscopy.blitz.BlitzPlugin
 import org.openmicroscopy.blitz.extensions.BlitzExtension
+import org.openmicroscopy.dsl.tasks.FilesGeneratorTask
+import org.openmicroscopy.dsl.tasks.GeneratorBaseTask
 import org.openmicroscopy.extensions.IceExtension
 
 @CompileStatic
@@ -85,14 +89,13 @@ class BlitzIcePlugin implements Plugin<Project> {
     void configureTaskOrdering() {
         // Compile slice depends on all ice files being present
         project.tasks.named(IcePlugin.TASK_COMPILE_ICE).configure {
-            it.dependsOn(TASK_COPY_ICE_FILES, "combinedToIce")
+            it.dependsOn(project.tasks.named(TASK_COPY_ICE_FILES), project.tasks.named("combinedToIce"))
         }
 
         // Ice docs task depends on all ice files being present
         project.tasks.named(IcePlugin.TASK_COMPILE_ICEDOC).configure {
-            it.dependsOn("combinedToIce", TASK_COPY_ICE_FILES)
+            it.dependsOn(project.tasks.named(TASK_COPY_ICE_FILES), project.tasks.named("combinedToIce"))
         }
     }
-
 
 }

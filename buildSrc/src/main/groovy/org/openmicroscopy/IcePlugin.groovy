@@ -13,7 +13,6 @@ import org.openmicroscopy.blitz.BlitzPlugin
 import org.openmicroscopy.blitz.extensions.BlitzExtension
 import org.openmicroscopy.extensions.IceExtension
 import org.openmicroscopy.tasks.IceDocsTask
-import org.openmicroscopy.utils.SliceHelper
 
 @CompileStatic
 class IcePlugin implements Plugin<Project> {
@@ -40,11 +39,9 @@ class IcePlugin implements Plugin<Project> {
                 project.extensions.create(EXTENSION_ICE, IceExtension, project)
 
         // Set ice conventions based on BlitzExtension
-        ice = project.extensions.getByType(IceExtension)
         ice.outputDir.set(blitz.outputDir.dir("java"))
         ice.iceSrcDir.set(blitz.outputDir.dir("slice"))
 
-        configureSlice(ice)
         configureCompileSlice(ice)
         registerIceDocsTask(ice)
 
@@ -54,15 +51,10 @@ class IcePlugin implements Plugin<Project> {
         }
     }
 
-    void configureSlice(IceExtension ice) {
-        SliceHelper.newInstance(project, ice).configure()
-    }
-
     void configureCompileSlice(IceExtension ice) {
         SliceExtension slice = project.extensions.getByType(SliceExtension)
 
         slice.output = ice.outputDir.asFile.get()
-
         slice.java.create("main", new Action<Java>() {
             @Override
             void execute(Java java) {
@@ -71,6 +63,17 @@ class IcePlugin implements Plugin<Project> {
                     include: "**/*.ice"
                 }
                 java.args = "--tie"
+            }
+        })
+    }
+
+    TaskProvider<IceDocsTask> registerIceDocsTask(IceExtension ice) {
+        project.tasks.register(TASK_COMPILE_ICEDOC, IceDocsTask, new Action<IceDocsTask>() {
+            @Override
+            void execute(IceDocsTask t) {
+                t.source = ice.iceSrcDir
+                t.includeDirs.add(ice.iceSrcDir)
+                t.outputDir.set(ice.docsOutputDir)
             }
         })
     }
@@ -87,16 +90,5 @@ class IcePlugin implements Plugin<Project> {
 //            }
 //        })
 //    }
-
-    TaskProvider<IceDocsTask> registerIceDocsTask(IceExtension ice) {
-        project.tasks.register(TASK_COMPILE_ICEDOC, IceDocsTask, new Action<IceDocsTask>() {
-            @Override
-            void execute(IceDocsTask t) {
-                t.source = ice.iceSrcDir
-                t.includeDirs.add(ice.iceSrcDir)
-                t.outputDir.set(ice.docsOutputDir)
-            }
-        })
-    }
 
 }

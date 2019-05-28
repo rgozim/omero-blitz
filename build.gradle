@@ -18,12 +18,12 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-ext {
-    databaseType = "psql"
-    pythonOutputDir = "$buildDir/toArchive/python"
-    iceOutputDir = "$buildDir/toArchive/icedoc"
-    generatedDir = "build/${databaseType}"
-    generatedSliceDir = "${generatedDir}/slice"
+sourceSets {
+    if (slice.iceVersion.contains("3.7")) {
+        main.java.srcDirs("src/main/ice37")
+    } else if (slice.iceVersion.contains("3.6")) {
+        main.java.srcDirs("src/main/ice36")
+    }
 }
 
 dependencies {
@@ -44,6 +44,9 @@ dependencies {
     implementation("org.apache.httpcomponents:httpmime:4.5.6")
     implementation("gnu.getopt:java-getopt:1.0.13")
     implementation("net.sf.ehcache:ehcache:2.10.6")
+
+    implementation "com.zeroc:icegrid"
+    implementation "com.zeroc:icestorm"
 }
 
 configurations.all {
@@ -88,13 +91,11 @@ api {
 }
 
 publishing {
-    publications {
-        blitzIceDocs(MavenPublication) {
-            artifact zipIcedoc
-        }
-        blitzPython(MavenPublication) {
-            artifact zipPython
-        }
+    publications.getByName("omeroBlitz") { MavenPublication pub ->
+        // Ensure ice docs is the last element in maven-metadata.xml
+        // (located in ~/.m2/org/openmicroscopy/omero-blitz)
+        pub.artifact zipIcedoc
+        pub.artifact zipPython
     }
 }
 

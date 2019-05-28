@@ -22,12 +22,12 @@ class IcePythonPlugin implements Plugin<Project> {
     void apply(Project project) {
         this.project = project
 
-        project.pluginManager.apply(IcePlugin)
-
-        blitzIce = project.extensions.getByType(IceExtension)
-
-        addPythonIceRegistrationRule()
-        registerPythonTaskGroup()
+//        project.pluginManager.apply(IcePlugin)
+//
+//        blitzIce = project.extensions.getByType(IceExtension)
+//
+//        addPythonIceRegistrationRule()
+//        registerPythonTaskGroup()
     }
 
     void addPythonIceRegistrationRule() {
@@ -41,7 +41,7 @@ class IcePythonPlugin implements Plugin<Project> {
                 project.tasks.register(taskName, IcePythonTask, new Action<IcePythonTask>() {
                     @Override
                     void execute(IcePythonTask task) {
-                        task.dependsOn(project.tasks.named(BlitzIcePlugin.TASK_COPY_ICE_FILES))
+                        task.dependsOn(project.tasks.named(BlitzIcePlugin.TASK_PROCESS_SLICE))
                         task.includeDirs.from(blitzIce.iceSrcDir)
                         task.sourceFiles.from(project.fileTree(blitzIce.iceSrcDir.dir(dir)).matching {
                             include: "**.ice"

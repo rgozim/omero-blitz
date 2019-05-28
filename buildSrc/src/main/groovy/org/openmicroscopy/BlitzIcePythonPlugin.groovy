@@ -63,9 +63,7 @@ class BlitzIcePythonPlugin implements Plugin<Project> {
         })
 
         project.tasks.named(IcePythonPlugin.TASK_COMPILE_ICE_PYTHON).configure {
-            BlitzExtension blitz = project.extensions.getByType(BlitzExtension)
-            String objectFactoryRegistrarName =
-                    DslPluginBase.makeDslTaskName("objectFactoryRegistrar", blitz.database.get())
+            String objectFactoryRegistrarName = dsl.createTaskName("objectFactoryRegistrar")
             it.dependsOn(
                     project.tasks.named("combinedToPython"),
                     project.tasks.named(objectFactoryRegistrarName)

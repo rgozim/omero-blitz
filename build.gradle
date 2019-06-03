@@ -1,8 +1,8 @@
 plugins {
     id "java-library"
     id "org.openmicroscopy.blitz-ice"
-    id "org.openmicroscopy.blitz-ice-python"
-    id "org.openmicroscopy.project" version "5.5.0-SNAPSHOT"
+//    id "org.openmicroscopy.blitz-ice-python"
+    id "org.openmicroscopy.project" version "5.5.2-SNAPSHOT"
 }
 
 group = "org.openmicroscopy"
@@ -91,15 +91,15 @@ api {
 }
 
 publishing {
-    publications.getByName("omeroBlitz") { MavenPublication pub ->
-        // Ensure ice docs is the last element in maven-metadata.xml
-        // (located in ~/.m2/org/openmicroscopy/omero-blitz)
-        pub.artifact zipIcedoc
-        pub.artifact zipPython
-    }
+//    publications.getByName("omeroBlitz") { MavenPublication pub ->
+//        // Ensure ice docs is the last element in maven-metadata.xml
+//        // (located in ~/.m2/org/openmicroscopy/omero-blitz)
+//        pub.artifact zipIcedoc
+//        pub.artifact zipPython
+//    }
 }
 
-compileIcedoc {
-    header = file("docs/header.txt")
-    footer = file("docs/footer.txt")
-}
+//compileIcedoc {
+//    header = file("docs/header.txt")
+//    footer = file("docs/footer.txt")
+//}

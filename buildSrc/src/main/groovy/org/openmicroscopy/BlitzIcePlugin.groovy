@@ -1,29 +1,24 @@
 package org.openmicroscopy
 
+import com.zeroc.gradle.icebuilder.slice.SlicePlugin
 import groovy.transform.CompileStatic
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.plugins.BasePlugin
-import org.gradle.api.tasks.Copy
-import org.gradle.api.tasks.Delete
-import org.gradle.api.tasks.TaskProvider
-import org.gradle.api.tasks.bundling.Zip
-import org.openmicroscopy.api.extensions.ApiExtension
-import org.openmicroscopy.api.extensions.SplitExtension
 import org.openmicroscopy.blitz.BlitzPlugin
-import org.openmicroscopy.blitz.extensions.BlitzExtension
-import org.openmicroscopy.dsl.tasks.FilesGeneratorTask
-import org.openmicroscopy.dsl.tasks.GeneratorBaseTask
 import org.openmicroscopy.extensions.IceExtension
 
 @CompileStatic
 class BlitzIcePlugin implements Plugin<Project> {
 
+    public static final String EXTENSION_ICE = "ice"
+
     public static final String TASK_ZIP_ICEDOC = "zipIcedoc"
 
-    public static final String TASK_COPY_ICE_FILES = "copyIceFiles"
+    public static final String TASK_PROCESS_SLICE = "processSlice"
+
+    public static final String TASK_COMPILE_ICE = "compileSlice"
+
+    public static final String TASK_COMPILE_ICEDOC = "compileIcedoc"
 
     private IceExtension ice
 
@@ -33,69 +28,91 @@ class BlitzIcePlugin implements Plugin<Project> {
     void apply(Project project) {
         this.project = project
 
-        project.pluginManager.apply(IcePlugin)
+        project.pluginManager.apply(BlitzPlugin)
+        project.pluginManager.apply(SlicePlugin)
 
-        ice = project.extensions.getByType(IceExtension)
+        // Create ice extension
+        ice = project.extensions.create(EXTENSION_ICE, IceExtension, project)
+
 
         // Ice tasks
-        registerCopySliceFilesTask()
-        registerZipIceDocs()
-
-        configureClean()
-        configureIceGen()
-        configureTaskOrdering()
+//        registerCopySliceFilesTask()
+//        registerIceDocsTask()
+//        registerZipIceDocs()
+//        configureCompileSlice()
+//        registerCombinedToIce()
+//
+//        configureTaskOrdering()
     }
 
-    TaskProvider<Copy> registerCopySliceFilesTask() {
-        project.tasks.register(TASK_COPY_ICE_FILES, Copy, new Action<Copy>() {
-            @Override
-            void execute(Copy task) {
-                task.from(project.layout.projectDirectory.dir("src/main/slice"))
-                task.into(ice.iceSrcDir)
-            }
-        })
-    }
-
-    TaskProvider<Zip> registerZipIceDocs() {
-        project.tasks.register(TASK_ZIP_ICEDOC, Zip, new Action<Zip>() {
-            @Override
-            void execute(Zip zip) {
-                zip.archiveClassifier.set("icedoc")
-                zip.from(project.tasks.named(IcePlugin.TASK_COMPILE_ICEDOC))
-            }
-        })
-    }
-
-    void configureClean() {
-        BlitzExtension blitz = project.extensions.getByType(BlitzExtension)
-
-        project.tasks.named(BasePlugin.CLEAN_TASK_NAME, Delete).configure {
-            it.delete blitz.outputDir
-        }
-    }
-
-    void configureIceGen() {
-        ApiExtension api = project.extensions.getByType(ApiExtension)
-
-        api.language.create("ice", new Action<SplitExtension>() {
-            @Override
-            void execute(SplitExtension splitExtension) {
-                splitExtension.setOutputDir("slice/omero/model")
-                splitExtension.rename("\$1")
-            }
-        })
-    }
-
-    void configureTaskOrdering() {
-        // Compile slice depends on all ice files being present
-        project.tasks.named(IcePlugin.TASK_COMPILE_ICE).configure {
-            it.dependsOn(project.tasks.named(TASK_COPY_ICE_FILES), project.tasks.named("combinedToIce"))
-        }
-
-        // Ice docs task depends on all ice files being present
-        project.tasks.named(IcePlugin.TASK_COMPILE_ICEDOC).configure {
-            it.dependsOn(project.tasks.named(TASK_COPY_ICE_FILES), project.tasks.named("combinedToIce"))
-        }
-    }
+//    TaskProvider<Copy> registerCopySliceFilesTask() {
+//        project.tasks.register(TASK_PROCESS_SLICE, Copy, new Action<Copy>() {
+//            @Override
+//            void execute(Copy task) {
+//                task.from(project.layout.projectDirectory.dir("src/main/slice"))
+//                task.into(ice.iceSrcDir)
+//            }
+//        })
+//    }
+//
+//    TaskProvider<IceDocsTask> registerIceDocsTask(IceExtension ice) {
+//        project.tasks.register(TASK_COMPILE_ICEDOC, IceDocsTask, new Action<IceDocsTask>() {
+//            @Override
+//            void execute(IceDocsTask t) {
+//                t.source = ice.iceSrcDir
+//                t.includeDirs.add(ice.iceSrcDir)
+//                t.outputDir.set(ice.docsOutputDir)
+//            }
+//        })
+//    }
+//
+//    TaskProvider<Zip> registerZipIceDocs() {
+//        project.tasks.register(TASK_ZIP_ICEDOC, Zip, new Action<Zip>() {
+//            @Override
+//            void execute(Zip zip) {
+//                zip.archiveClassifier.set("icedoc")
+//                zip.from(project.tasks.named(TASK_COMPILE_ICEDOC))
+//            }
+//        })
+//    }
+//
+//    void configureCompileSlice(IceExtension ice) {
+//        SliceExtension slice = project.extensions.getByType(SliceExtension)
+//
+//        slice.java.create("main", new Action<Java>() {
+//            @Override
+//            void execute(Java java) {
+//                java.include = [project.file(ice.iceSrcDir)]
+//                java.files = project.fileTree(ice.iceSrcDir).matching {
+//                    include: "**/*.ice"
+//                }
+//                java.args = "--tie"
+//            }
+//        })
+//    }
+//
+//    void registerCombinedToIce() {
+//        ApiExtension api = project.extensions.getByType(ApiExtension)
+//
+//        api.language.create("ice", new Action<SplitExtension>() {
+//            @Override
+//            void execute(SplitExtension splitExtension) {
+//                splitExtension.setOutputDir("slice/omero/model")
+//                splitExtension.rename("\$1")
+//            }
+//        })
+//    }
+//
+//    void configureTaskOrdering() {
+//        // Compile slice depends on all ice files being present
+//        project.tasks.named(IcePlugin.TASK_COMPILE_ICE).configure {
+//            it.dependsOn(project.tasks.named(TASK_PROCESS_SLICE), project.tasks.named("combinedToIce"))
+//        }
+//
+//        // Ice docs task depends on all ice files being present
+//        project.tasks.named(IcePlugin.TASK_COMPILE_ICEDOC).configure {
+//            it.dependsOn(project.tasks.named(TASK_PROCESS_SLICE), project.tasks.named("combinedToIce"))
+//        }
+//    }
 
 }

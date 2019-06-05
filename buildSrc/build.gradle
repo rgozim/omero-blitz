@@ -19,22 +19,22 @@ repositories {
 }
 
 dependencies {
-    implementation("org.openmicroscopy:omero-dsl-plugin:5.5.1-SNAPSHOT")
-    implementation("org.openmicroscopy:omero-api-plugin:5.5.1-SNAPSHOT")
-    implementation("org.openmicroscopy:omero-blitz-plugin:5.5.1-SNAPSHOT")
-    implementation("org.openmicroscopy.gradle.ice-builder:slice:1.5.2-SNAPSHOT")
+    implementation("org.openmicroscopy:omero-dsl-plugin:5.5.1")
+    implementation("org.openmicroscopy:omero-api-plugin:5.5.1")
+    implementation("org.openmicroscopy:omero-blitz-plugin:5.5.1")
+    implementation("org.openmicroscopy.gradle.ice-builder:slice:1.5.2")
 }
 
 gradlePlugin {
     plugins {
         register("blitz-ice-plugin") {
             id = "org.openmicroscopy.blitz-ice"
-            implementationClass = "org.openmicroscopy.BlitzIcePlugin"
+            implementationClass = "org.openmicroscopy.IcePlugin"
         }
 
         register("blitz-ice-python-plugin") {
             id = "org.openmicroscopy.blitz-ice-python"
-            implementationClass = "org.openmicroscopy.BlitzIcePythonPlugin"
+            implementationClass = "org.openmicroscopy.IcePythonPlugin"
         }
     }
 }

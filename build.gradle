@@ -1,12 +1,12 @@
 plugins {
     id "java-library"
     id "org.openmicroscopy.blitz-ice"
-//    id "org.openmicroscopy.blitz-ice-python"
-    id "org.openmicroscopy.project" version "5.5.2-SNAPSHOT"
+    id "org.openmicroscopy.blitz-ice-python"
+    id "org.openmicroscopy.project" version "5.5.3"
 }
 
 group = "org.openmicroscopy"
-version = "5.5.3-SNAPSHOT"
+version = "5.5.3"
 
 repositories {
     mavenLocal()
@@ -34,7 +34,10 @@ dependencies {
     testImplementation('org.openmicroscopy:omero-common-test:5.5.1')
     testImplementation('org.quartz-scheduler:quartz:2.2.1')
 
-    api("org.openmicroscopy:omero-server:5.5.2")
+    api("org.openmicroscopy:omero-server:5.5.3")
+
+    implementation("com.zeroc:icegrid:$slice.iceVersion")
+    implementation("com.zeroc:icestorm:$slice.iceVersion")
 
     implementation("com.sun.activation:javax.activation:1.2.0")
     implementation("org.ini4j:ini4j:0.4.1")
@@ -44,14 +47,11 @@ dependencies {
     implementation("org.apache.httpcomponents:httpmime:4.5.6")
     implementation("gnu.getopt:java-getopt:1.0.13")
     implementation("net.sf.ehcache:ehcache:2.10.6")
-
-    implementation "com.zeroc:icegrid"
-    implementation "com.zeroc:icestorm"
 }
 
-configurations.all {
-    exclude group: 'com.google.code.findbugs'
-}
+//configurations.all {
+//    exclude group: 'com.google.code.findbugs'
+//}
 
 test {
     // enable TestNG support (default is JUnit)
@@ -85,21 +85,37 @@ dsl {
 api {
     language {
         java {
-            outputDir "java/omero/model"
+            outputDir "java"
         }
     }
 }
 
-publishing {
-//    publications.getByName("omeroBlitz") { MavenPublication pub ->
-//        // Ensure ice docs is the last element in maven-metadata.xml
-//        // (located in ~/.m2/org/openmicroscopy/omero-blitz)
-//        pub.artifact zipIcedoc
-//        pub.artifact zipPython
-//    }
+slice {
+    java {
+        include = [file(ice.iceSrcDir)]
+        files = fileTree(ice.iceSrcDir).matching {
+            include "**/*.ice"
+        }
+        args = "--tie"
+    }
+
+    // Set task order for compileSlice
+    tasks.named("compileSlice").configure {
+        dependsOn "processSlice"
+    }
 }
 
-//compileIcedoc {
-//    header = file("docs/header.txt")
-//    footer = file("docs/footer.txt")
-//}
+compileIcedoc {
+    header = file("docs/header.txt")
+    footer = file("docs/footer.txt")
+}
+
+publishing {
+    publications.getByName("omeroBlitz") { MavenPublication pub ->
+        // Ensure ice docs is the last element in maven-metadata.xml
+        // (located in ~/.m2/org/openmicroscopy/omero-blitz)
+        pub.artifact zipIcedoc
+        pub.artifact zipPython
+    }
+}
+

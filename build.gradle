@@ -1,8 +1,9 @@
 plugins {
     id "java-library"
     id "org.openmicroscopy.blitz-ice"
-//    id "org.openmicroscopy.blitz-ice-python"
+    id "org.openmicroscopy.blitz-ice-python"
     id "org.openmicroscopy.project" version "5.5.2-SNAPSHOT"
+    id "com.dorongold.task-tree" version "1.4"
 }
 
 group = "org.openmicroscopy"
@@ -85,21 +86,36 @@ dsl {
 api {
     language {
         java {
-            outputDir "java/omero/model"
+            outputDir "java"
         }
     }
 }
 
-publishing {
-//    publications.getByName("omeroBlitz") { MavenPublication pub ->
-//        // Ensure ice docs is the last element in maven-metadata.xml
-//        // (located in ~/.m2/org/openmicroscopy/omero-blitz)
-//        pub.artifact zipIcedoc
-//        pub.artifact zipPython
-//    }
+slice {
+    java {
+        include = [file(ice.iceSrcDir)]
+        files = fileTree(ice.iceSrcDir).matching {
+            include "**/*.ice"
+        }
+        args = "--tie"
+    }
+
+    // Set task order for compileSlice
+    tasks.named("compileSlice").configure {
+        dependsOn "processSlice"
+    }
 }
 
-//compileIcedoc {
-//    header = file("docs/header.txt")
-//    footer = file("docs/footer.txt")
-//}
+publishing {
+    publications.getByName("omeroBlitz") { MavenPublication pub ->
+        // Ensure ice docs is the last element in maven-metadata.xml
+        // (located in ~/.m2/org/openmicroscopy/omero-blitz)
+        pub.artifact zipIcedoc
+        pub.artifact zipPython
+    }
+}
+
+compileIcedoc {
+    header = file("docs/header.txt")
+    footer = file("docs/footer.txt")
+}

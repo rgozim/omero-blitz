@@ -5,29 +5,39 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.Directory
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.bundling.Zip
+import org.openmicroscopy.api.extensions.ApiExtension
+import org.openmicroscopy.api.extensions.SplitExtension
+import org.openmicroscopy.dsl.extensions.DslExtension
+import org.openmicroscopy.dsl.extensions.SingleFileConfig
 import org.openmicroscopy.extensions.IceExtension
 import org.openmicroscopy.tasks.IcePythonTask
 
 @CompileStatic
 class IcePythonPlugin implements Plugin<Project> {
 
+    public static final String TASK_ZIP_PYTHON = "zipPython"
+
     public static final String TASK_COMPILE_ICE_PYTHON = "compileIcePython"
 
     private Project project
 
-    private IceExtension blitzIce
+    private IceExtension ice
 
     @Override
     void apply(Project project) {
-        this.project = project
+        project.pluginManager.apply(IcePlugin)
 
-//        project.pluginManager.apply(IcePlugin)
-//
-//        blitzIce = project.extensions.getByType(IceExtension)
-//
-//        addPythonIceRegistrationRule()
-//        registerPythonTaskGroup()
+        this.project = project
+        this.ice = project.extensions.getByType(IceExtension)
+
+        addPythonIceRegistrationRule()
+        addPythonTaskGroup()
+        addPythonConfigurations()
+        addZipPythonTask()
     }
 
     void addPythonIceRegistrationRule() {
@@ -41,12 +51,12 @@ class IcePythonPlugin implements Plugin<Project> {
                 project.tasks.register(taskName, IcePythonTask, new Action<IcePythonTask>() {
                     @Override
                     void execute(IcePythonTask task) {
-                        task.dependsOn(project.tasks.named(BlitzIcePlugin.TASK_PROCESS_SLICE))
-                        task.includeDirs.from(blitzIce.iceSrcDir)
-                        task.sourceFiles.from(project.fileTree(blitzIce.iceSrcDir.dir(dir)).matching {
+                        task.dependsOn(project.tasks.named(IcePlugin.TASK_PROCESS_SLICE))
+                        task.source = project.fileTree(ice.iceSrcDir.dir(dir)).matching {
                             include: "**.ice"
-                        })
-                        task.outputDir.set(blitzIce.pythonOutputDir)
+                        }
+                        task.includeDirs.add(ice.iceSrcDir)
+                        task.outputDir.set(ice.pythonOutputDir)
                         task.prefix.set(dirAsPrefix)
                     }
                 })
@@ -60,13 +70,55 @@ class IcePythonPlugin implements Plugin<Project> {
         project.tasks.register("pythonIceOmeroApi")
     }
 
-    TaskProvider<Task> registerPythonTaskGroup() {
+    TaskProvider<Task> addPythonTaskGroup() {
         project.tasks.register(TASK_COMPILE_ICE_PYTHON) {
             it.setGroup("slice")
             it.setDescription("Runs all ice python tasks")
             it.dependsOn("pythonIceOmero", "pythonIceOmeroModel",
                     "pythonIceOmeroCmd", "pythonIceOmeroApi")
         }
+    }
+
+    void addPythonConfigurations() {
+        DslExtension dsl = project.extensions.getByType(DslExtension)
+        dsl.singleFile.create("objectFactoryRegistrar", new Action<SingleFileConfig>() {
+            @Override
+            void execute(SingleFileConfig singleFileConfig) {
+                singleFileConfig.setTemplate("py_obj_reg.vm")
+                singleFileConfig.setOutputFile(ice.pythonOutputDir.map { Directory dir ->
+                    new File(dir.asFile, "omero/ObjectFactoryRegistrar.py")
+                })
+            }
+        })
+
+        ApiExtension api = project.extensions.getByType(ApiExtension)
+        api.language.create("python", new Action<SplitExtension>() {
+            @Override
+            void execute(SplitExtension splitExtension) {
+                splitExtension.setOutputDir(ice.pythonOutputDir.map { Directory dir ->
+                    dir.asFile
+                })
+                splitExtension.rename("omero_model_\$1I")
+            }
+        })
+
+        project.tasks.named(TASK_COMPILE_ICE_PYTHON).configure {
+            Provider<String> objectFactoryRegistrarName =
+                    dsl.createTaskName("objectFactoryRegistrar")
+            it.dependsOn(project.tasks.named("combinedToPython"),
+                    project.tasks.named(objectFactoryRegistrarName.get()))
+        }
+    }
+
+    TaskProvider<Zip> addZipPythonTask() {
+        project.tasks.register(TASK_ZIP_PYTHON, Zip, new Action<Zip>() {
+            @Override
+            void execute(Zip zip) {
+                zip.dependsOn(TASK_COMPILE_ICE_PYTHON)
+                zip.archiveClassifier.set("python")
+                zip.from ice.pythonOutputDir
+            }
+        })
     }
 
 }

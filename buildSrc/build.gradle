@@ -29,12 +29,12 @@ gradlePlugin {
     plugins {
         register("blitz-ice-plugin") {
             id = "org.openmicroscopy.blitz-ice"
-            implementationClass = "org.openmicroscopy.BlitzIcePlugin"
+            implementationClass = "org.openmicroscopy.IcePlugin"
         }
 
         register("blitz-ice-python-plugin") {
             id = "org.openmicroscopy.blitz-ice-python"
-            implementationClass = "org.openmicroscopy.BlitzIcePythonPlugin"
+            implementationClass = "org.openmicroscopy.IcePythonPlugin"
         }
     }
 }

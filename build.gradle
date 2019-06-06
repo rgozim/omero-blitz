@@ -3,7 +3,6 @@ plugins {
     id "org.openmicroscopy.blitz-ice"
     id "org.openmicroscopy.blitz-ice-python"
     id "org.openmicroscopy.project" version "5.5.2-SNAPSHOT"
-    id "com.dorongold.task-tree" version "1.4"
 }
 
 group = "org.openmicroscopy"
@@ -46,8 +45,8 @@ dependencies {
     implementation("gnu.getopt:java-getopt:1.0.13")
     implementation("net.sf.ehcache:ehcache:2.10.6")
 
-    implementation "com.zeroc:icegrid"
-    implementation "com.zeroc:icestorm"
+    implementation "com.zeroc:icegrid:3.6.+"
+    implementation "com.zeroc:icestorm:3.6.+"
 }
 
 configurations.all {

@@ -84,9 +84,7 @@ dsl {
 
 api {
     language {
-        java {
-            outputDir "java"
-        }
+        java {}
     }
 }
 

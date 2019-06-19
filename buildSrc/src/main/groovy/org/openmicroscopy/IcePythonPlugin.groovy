@@ -1,6 +1,7 @@
 package org.openmicroscopy
 
 import groovy.transform.CompileStatic
+import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -34,49 +35,43 @@ class IcePythonPlugin implements Plugin<Project> {
         this.project = project
         this.ice = project.extensions.getByType(IceExtension)
 
-        addPythonIceRegistrationRule()
         addPythonTaskGroup()
         addPythonConfigurations()
         addZipPythonTask()
     }
 
-    void addPythonIceRegistrationRule() {
-        project.tasks.addRule("Pattern: pythonIce<ID>", new Action<String>() {
-            @Override
-            void execute(String taskName) {
-                String id = taskName.replace("pythonIce", "")
-                String camel = id.substring(0, 1).toLowerCase() + id.substring(1)
-                String dir = camel.replaceAll("([A-Z])", '/$1').toLowerCase()
-                String dirAsPrefix = dir.replace("/", "_") + "_"
-                project.tasks.register(taskName, IcePythonTask, new Action<IcePythonTask>() {
-                    @Override
-                    void execute(IcePythonTask task) {
-                        task.dependsOn(project.tasks.named(IcePlugin.TASK_PROCESS_SLICE))
-                        task.source = project.fileTree(ice.iceSrcDir.dir(dir)).matching {
-                            include: "**.ice"
-                        }
-                        task.includeDirs.add(ice.iceSrcDir)
-                        task.outputDir.set(ice.pythonOutputDir)
-                        task.prefix.set(dirAsPrefix)
-                    }
-                })
-            }
-        })
-
-        // Register rule based tasks
-        project.tasks.register("pythonIceOmero")
-        project.tasks.register("pythonIceOmeroModel")
-        project.tasks.register("pythonIceOmeroCmd")
-        project.tasks.register("pythonIceOmeroApi")
-    }
-
     TaskProvider<Task> addPythonTaskGroup() {
+        def tasks = addIceOmeroTasks("pythonIceOmero", "pythonIceOmeroModel",
+                "pythonIceOmeroCmd", "pythonIceOmeroApi")
+
         project.tasks.register(TASK_COMPILE_ICE_PYTHON) {
             it.setGroup("slice")
             it.setDescription("Runs all ice python tasks")
-            it.dependsOn("pythonIceOmero", "pythonIceOmeroModel",
-                    "pythonIceOmeroCmd", "pythonIceOmeroApi")
+            it.dependsOn(tasks)
         }
+    }
+
+    List<TaskProvider<IcePythonTask>> addIceOmeroTasks(String... taskName) {
+        taskName.collect {
+            addIceOmeroTask(it)
+        }
+    }
+
+    TaskProvider<IcePythonTask> addIceOmeroTask(String taskName) {
+        String id = taskName.replace("pythonIce", "")
+        String camel = id.substring(0, 1).toLowerCase() + id.substring(1)
+        String dir = camel.replaceAll("([A-Z])", '/$1').toLowerCase()
+        String dirAsPrefix = dir.replace("/", "_") + "_"
+        project.tasks.register(taskName, IcePythonTask, new Action<IcePythonTask>() {
+            @Override
+            void execute(IcePythonTask task) {
+                task.dependsOn(project.tasks.named(IcePlugin.TASK_PROCESS_SLICE))
+                task.source = project.files(ice.iceSrcDir.dir(dir))
+                task.includeDirs.add(ice.iceSrcDir)
+                task.outputDir.set(ice.pythonOutputDir)
+                task.prefix.set(dirAsPrefix)
+            }
+        })
     }
 
     void addPythonConfigurations() {
@@ -98,13 +93,16 @@ class IcePythonPlugin implements Plugin<Project> {
                 splitExtension.setOutputDir(ice.pythonOutputDir.map { Directory dir ->
                     dir.asFile
                 })
-                splitExtension.rename("omero_model_\$1I")
+                splitExtension.rename({ String file ->
+                    "omero_model_" + FilenameUtils.getBaseName(file)
+                })
             }
         })
 
         project.tasks.named(TASK_COMPILE_ICE_PYTHON).configure {
             Provider<String> objectFactoryRegistrarName =
                     dsl.createTaskName("objectFactoryRegistrar")
+
             it.dependsOn(project.tasks.named("combinedToPython"),
                     project.tasks.named(objectFactoryRegistrarName.get()))
         }

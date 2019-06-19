@@ -2,6 +2,7 @@ package org.openmicroscopy
 
 import com.zeroc.gradle.icebuilder.slice.SlicePlugin
 import groovy.transform.CompileStatic
+import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -74,7 +75,14 @@ class IcePlugin implements Plugin<Project> {
             @Override
             void execute(SplitExtension splitExtension) {
                 splitExtension.setOutputDir("slice/omero/model")
-                splitExtension.rename("\$1")
+                splitExtension.rename { String fileName ->
+                    String result = FilenameUtils.removeExtension(fileName)
+                    int index = result.lastIndexOf("I")
+                    if (index != -1) {
+                        result = result.substring(0, index)
+                    }
+                    result
+                }
             }
         })
     }
@@ -122,7 +130,7 @@ class IcePlugin implements Plugin<Project> {
 
     void configureTaskOrdering() {
         TaskProvider<Task> processSlice = project.tasks.named(TASK_PROCESS_SLICE)
-        
+
         // Ice docs task depends on all ice files being present
         project.tasks.named(TASK_COMPILE_ICEDOC).configure {
             it.dependsOn(processSlice)

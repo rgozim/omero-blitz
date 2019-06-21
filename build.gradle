@@ -1,8 +1,9 @@
 plugins {
     id "java-library"
-    id "org.openmicroscopy.blitz-ice"
-    id "org.openmicroscopy.blitz-ice-python"
+    id "org.openmicroscopy.blitz" version "5.5.1"
+    id "org.openmicroscopy.blitz-python" version "5.5.1"
     id "org.openmicroscopy.project" version "5.5.3"
+    id "com.dorongold.task-tree" version "1.4"
 }
 
 group = "org.openmicroscopy"
